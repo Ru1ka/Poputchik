@@ -11,6 +11,6 @@ FROM node:14
 RUN npm install -g serve
 COPY --from=build /app/build /app/build
 
-EXPOSE 5000
+EXPOSE ${FRONTEND_PORT}
 
-CMD ["serve", "-s", "build", "-l", "5000"]
+CMD ["serve", "-s", "build", "-l", "${FRONTEND_PORT}"]

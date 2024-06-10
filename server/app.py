@@ -17,7 +17,8 @@ from settings import settings
 app = FastAPI(
     title="API",
     description="PROD v2: Pulse Backend",
-    debug=settings().API_DEBUG,
+    debug=settings().DEBUG,
+    docs_url="/api/docs",
 )
 app.include_router(router)
 

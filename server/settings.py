@@ -4,11 +4,6 @@ from functools import lru_cache
 from pydantic import BaseSettings
 
 
-class Engine(str, Enum):
-    sqlite = "sqlite"
-    postgresql = "postgresql"
-
-
 class Settings(BaseSettings):
     DEBUG: bool = False
     ENVIRONMENT: str = "development"

@@ -5,6 +5,8 @@ db.db
 .DS_Store
 certificate.crt
 private.key
+node_modules
+package-lock.json
 
 # DEFAUL PYTHON .gitignore:
 # Byte-compiled / optimized / DLL files
