@@ -1,0 +1,11 @@
+fastapi==0.110.0
+pydantic==1.10.14
+PyJWT==2.8.0
+uvicorn==0.20.0
+SQLAlchemy==1.4.51
+urllib3==2.1.0
+bcrypt==4.1.2
+starlette==0.36.3
+python-dotenv==0.21.1
+psycopg2-binary
+python-multipart
