@@ -10,24 +10,38 @@ class Engine(str, Enum):
 
 
 class Settings(BaseSettings):
-    SERVER_ADDRESS: str = "127.0.0.1"
-    SERVER_PORT: int = 7999
-    SERVER_DEBUG: bool = False
+    DEBUG: bool = False
+    ENVIRONMENT: str = "development"
+    SERVER_PORT: int
 
     # postgresql settings
-    POSTGRES_USERNAME: str
+    POSTGRES_USER: str
     POSTGRES_PASSWORD: str
-    POSTGRES_HOST: str
-    POSTGRES_PORT: int = 5432
-    POSTGRES_DB_NAME: str
-
-    # sqlite settings
-    SQLITE_DIR: str = "database/db.db"
+    POSTGRES_DB: str
 
 
 @lru_cache()
 def settings():
     return Settings(
-        _env_file=".env",
+        _env_file="../.env",
         _env_file_encoding="utf-8",
     )
+
+
+# from pydantic import BaseSettings
+
+# class Settings(BaseSettings):
+#     postgres_user: str
+#     postgres_password: str
+#     postgres_db: str
+#     pgadmin_default_email: str
+#     pgadmin_default_password: str
+#     domain: str
+#     debug: bool
+#     environment: str
+#     server_port: int
+
+#     class Config:
+#         env_file = ".env"
+
+# settings = Settings()

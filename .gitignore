@@ -3,6 +3,8 @@ db.db
 .idea
 .vscode
 .DS_Store
+certificate.crt
+private.key
 
 # DEFAUL PYTHON .gitignore:
 # Byte-compiled / optimized / DLL files

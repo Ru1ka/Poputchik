@@ -7,6 +7,6 @@ LOGGING_CONFIG["formatters"]["access"]["fmt"] = '%(asctime)s %(levelprefix)s %(c
 uvicorn.run(
     "app:app",
     reload=True,
-    host=settings().SERVER_ADDRESS,
+    host="0.0.0.0",
     port=settings().SERVER_PORT,
 )
