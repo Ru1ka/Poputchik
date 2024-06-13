@@ -24,6 +24,8 @@ services:
       - "${FRONTEND_PORT}:${FRONTEND_PORT}"
     env_file:
       - .env
+    volumes:
+      - ./frontend:/app
 
   nginx:
     image: nginx:latest
