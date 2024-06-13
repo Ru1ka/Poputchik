@@ -7,6 +7,6 @@ COPY ./src /app/src
 
 RUN npm i
 
-EXPOSE ${FRONTEND_PORT}
+EXPOSE 3000
 
 CMD node server.js

@@ -6,4 +6,4 @@ else
     envsubst '\$DOMAIN' < /etc/nginx/nginx.conf.dev > /etc/nginx/nginx.conf
 fi
 
-exec "$@"
+exec nginx -g 'daemon off;'
