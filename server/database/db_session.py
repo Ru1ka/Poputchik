@@ -1,4 +1,5 @@
-import os
+from log_config import logger as logging
+from time import sleep
 
 import sqlalchemy as sa
 import sqlalchemy.ext.declarative as dec
@@ -10,7 +11,6 @@ from settings import settings
 SqlAlchemyBase = dec.declarative_base()
 
 __factory = None
-print("Инициализация базы данных...")
 
 
 def global_init():
@@ -18,16 +18,21 @@ def global_init():
 
     if __factory:
         return
-    db_connection = f"postgresql://{settings().POSTGRESQL_USERNAME}:{settings().POSTGRESQL_PASSWORD}@{settings().POSTGRESQL_HOST}:{settings().POSTGRESQL_PORT}/{settings().POSTGRESQL_DB_NAME}"
-    engine = sa.create_engine(db_connection, pool_size=20, max_overflow=50)
+    db_connection = f"postgresql://{settings().POSTGRES_USER}:{settings().POSTGRES_PASSWORD}@postgres:5432/{settings().POSTGRES_DB}"
+    logging.info(f"Connecting to Postgres at {db_connection}")
+    while True:
+        try:
+            engine = sa.create_engine(db_connection, pool_size=20, max_overflow=50)
+            __factory = orm.sessionmaker(engine, autocommit=False, autoflush=False)
 
-    print(f"Подключение к базе данных по адресу {db_connection}")
+            from . import __all_models
 
-    __factory = orm.sessionmaker(engine, autocommit=False, autoflush=False)
-
-    from . import __all_models
-
-    SqlAlchemyBase.metadata.create_all(engine)
+            SqlAlchemyBase.metadata.create_all(engine)
+            break
+        except Exception as error:
+            logging.warning("Database is not ready yet")
+            logging.debug(f"Database is not ready yet: {error}")
+            sleep(2)
 
 
 def get_session() -> Session:
@@ -36,3 +41,4 @@ def get_session() -> Session:
         yield session
     finally:
         session.close()
+

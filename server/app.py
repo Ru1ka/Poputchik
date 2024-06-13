@@ -1,6 +1,6 @@
 from urllib.request import Request
 
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI
 from fastapi.encoders import jsonable_encoder
 from fastapi.exceptions import RequestValidationError
 from starlette import status
@@ -8,20 +8,17 @@ from starlette.responses import JSONResponse
 
 import errors
 from api import router
-# from database import db_session
+from database import db_session
 from settings import settings
 
 
-
-# db_session.global_init()
+db_session.global_init()
 app = FastAPI(
     title="API",
     description="PROD v2: Pulse Backend",
     debug=settings().DEBUG,
     docs_url="/api/docs",
 )
-app.include_router(router)
-
 
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
