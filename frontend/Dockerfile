@@ -1,16 +1,12 @@
-FROM node:14 as build
+FROM node:20-slim AS base
 
 WORKDIR /app
 
-COPY package.json package-lock.json ./
-RUN npm install
-COPY . .
-RUN npm run build
+COPY ./server/ /app/
+COPY ./src /app/src
 
-FROM node:14
-RUN npm install -g serve
-COPY --from=build /app/build /app/build
+RUN npm i
 
 EXPOSE ${FRONTEND_PORT}
 
-CMD ["serve", "-s", "build", "-l", "${FRONTEND_PORT}"]
+CMD node server.js

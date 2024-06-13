@@ -8,6 +8,7 @@ class Settings(BaseSettings):
     DEBUG: bool = False
     ENVIRONMENT: str = "development"
     SERVER_PORT: int
+    JWT_SECRET: str
 
     # postgresql settings
     POSTGRES_USER: str

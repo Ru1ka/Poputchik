@@ -5,7 +5,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 
 # from service.user import UserService
 # from schemas.user_pdc import SendCodeSms
-from schemas.auth_pdc import SendCode, CheckLogin
+from schemas.auth_pdc import SendCode
 from schemas.pdc import OkReturn
 # from api.dependencies import oauth2_scheme
 
@@ -15,7 +15,7 @@ router = APIRouter(
 )
 
 @router.post("/check_login", status_code=200, response_model=OkReturn)
-async def check_email(data: CheckLogin):
+async def check_email(data: SendCode):
     # TODO: check if user in db
     return {"status": "ok"}
 
