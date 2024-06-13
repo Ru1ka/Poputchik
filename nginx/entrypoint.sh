@@ -1,9 +1,9 @@
 #!/bin/sh
 
 if [ "$ENVIRONMENT" = "production" ]; then
-    envsubst '\$DOMAIN' < /etc/nginx/nginx.conf.prod > /etc/nginx/nginx.conf
+    envsubst '\$DOMAIN \$SERVER_PORT \$FRONTEND_PORT' < /etc/nginx/nginx.conf.prod > /etc/nginx/nginx.conf
 else
-    envsubst '\$DOMAIN' < /etc/nginx/nginx.conf.dev > /etc/nginx/nginx.conf
+    envsubst '\$DOMAIN \$SERVER_PORT \$FRONTEND_PORT' < /etc/nginx/nginx.conf.dev > /etc/nginx/nginx.conf
 fi
 
 exec nginx -g 'daemon off;'

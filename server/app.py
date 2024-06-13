@@ -15,9 +15,9 @@ from settings import settings
 db_session.global_init()
 app = FastAPI(
     title="API",
-    description="PROD v2: Pulse Backend",
+    description="Попутчик",
     debug=settings().DEBUG,
-    docs_url="/api/docs",
+    docs_url="/docs",
 )
 
 @app.exception_handler(RequestValidationError)
@@ -44,10 +44,9 @@ async def internal_server_error_handler(request: Request, exc: Exception):
     )
 
 
-@app.get("/api/ping")
+@app.get("/ping")
 async def root():
     return JSONResponse(
         status_code=200,
         content={"status": "ok"},
     )
-    

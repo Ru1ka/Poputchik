@@ -42,6 +42,11 @@ services:
       - frontend
     networks:
       - app-network
+    environment:
+      - DOMAIN=${DOMAIN}
+      - ENVIRONMENT=${ENVIRONMENT}
+      - SERVER_PORT=${SERVER_PORT}
+      - FRONTEND_PORT=${FRONTEND_PORT}
     env_file:
       - .env
 
