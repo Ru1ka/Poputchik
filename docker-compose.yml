@@ -42,9 +42,6 @@ services:
       - frontend
     networks:
       - app-network
-    environment:
-      - DOMAIN=${DOMAIN}
-      - ENVIRONMENT=${ENVIRONMENT}
     env_file:
       - .env
 
