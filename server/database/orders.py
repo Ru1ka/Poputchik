@@ -14,3 +14,4 @@ class Order(SqlAlchemyBase):
 
     customer_id = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey('users.id'))
     customer = orm.relationship("User", back_populates="orders")
+    

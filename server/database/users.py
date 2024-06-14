@@ -8,8 +8,7 @@ class User(SqlAlchemyBase):
     __table_args__ = {'extend_existing': True}
 
     id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, autoincrement=True)
+    name = sqlalchemy.Column(sqlalchemy.String, nullable=False)
     email = sqlalchemy.Column(sqlalchemy.String, unique=True)
     phone = sqlalchemy.Column(sqlalchemy.String, unique=True) # convert all to 7xxxxxxxxxx
-    # password_hash = sqlalchemy.Column(sqlalchemy.String, nullable=False)
-    # password_updated_time = sqlalchemy.Column(sqlalchemy.DateTime, default=datetime.datetime.utcnow)
     orders = orm.relationship("Order", back_populates="customer")

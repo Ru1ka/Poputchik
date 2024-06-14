@@ -34,11 +34,11 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      - ./nginx/nginx.conf.prod:/etc/nginx/nginx.conf.prod
-      - ./nginx/nginx.conf.dev:/etc/nginx/nginx.conf.dev
-      - ./nginx/ssl:/etc/nginx/ssl
-      - ./nginx/entrypoint.sh:/entrypoint.sh
-    entrypoint: ["/entrypoint.sh"]
+      - ./scripts/nginx.conf.prod:/etc/nginx/nginx.conf.prod
+      - ./scripts/nginx.conf.dev:/etc/nginx/nginx.conf.dev
+      - ./scripts/ssl:/etc/nginx/ssl
+      - ./scripts/nginx_setup.sh:/nginx_setup.sh
+    entrypoint: ["/nginx_setup.sh"]
     depends_on:
       - server
       - frontend
@@ -75,21 +75,9 @@ services:
     networks:
       - app-network
 
-  # clear_db:
-  #   image: python:3.9
-  #   container_name: clear_db
-  #   volumes:
-  #     - ./server:/app
-  #   entrypoint: ["python", "/app/clear_db.py"]
-  #   env_file:
-  #     - .env
-  #   networks:
-  #     - app-network
-  #   depends_on:
-  #     - db
-
 volumes:
   postgres_data:
+  pgadmin_data:
 
 networks:
   app-network:

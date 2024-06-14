@@ -1,6 +1,6 @@
 from urllib.request import Request
 
-from fastapi import FastAPI
+from fastapi import FastAPI, status
 from fastapi.encoders import jsonable_encoder
 from fastapi.exceptions import RequestValidationError
 from starlette import status
@@ -19,12 +19,13 @@ app = FastAPI(
     debug=settings().DEBUG,
     docs_url="/docs",
 )
+app.include_router(router)
 
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
     return JSONResponse(
         status_code=status.HTTP_400_BAD_REQUEST,
-        content=jsonable_encoder({"detail": exc.errors(), "reason": errors.VALIDATION_ERROR}),
+        content=jsonable_encoder({"detail": exc.errors(), "reason": "Validaton error"}),
     )
 
 
@@ -40,7 +41,7 @@ async def api_error_handler(request: Request, exc: errors.APIError):
 async def internal_server_error_handler(request: Request, exc: Exception):
     return JSONResponse(
         status_code=500,
-        content={"detail": [{"msg": exc.__str__}], "reason": errors.INTERNAL_SERVER_ERROR},
+        content={"detail": [{"msg": exc.__str__}], "reason": "Internal server error"},
     )
 
 

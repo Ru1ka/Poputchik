@@ -41,4 +41,3 @@ def get_session() -> Session:
         yield session
     finally:
         session.close()
-
