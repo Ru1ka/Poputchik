@@ -9,10 +9,15 @@ class Settings(BaseSettings):
     ENVIRONMENT: str = "development"
     SERVER_PORT: int
     JWT_SECRET: str
+    TOTP_LIFETIME: int
+
     SMSAERO_ENABLE: bool
     SMSAERO_EMAIL: str
     SMSAERO_API_KEY: str
-    TOTP_LIFETIME: int
+
+    SMTP_ENABLE: bool
+    SMTP_USER: str
+    SMTP_PASSWORD: str
 
     # postgresql settings
     POSTGRES_USER: str

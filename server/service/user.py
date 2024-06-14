@@ -6,6 +6,9 @@ import jwt
 import pyotp
 import datetime
 from smsaero import SmsAero
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 
 from database.users import User
 from database.db_session import get_session
@@ -27,15 +30,56 @@ class UserService:
     
     def send_totp_code(self, data):
         data = data.dict(exclude_unset=True)
+        # Validation
+        if "phone" in data and "email" in data:
+            raise APIError(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    reason="Слишком много параметров. Выберите один: email или phone",
+            )
+        elif "phone" not in data and "email" not in data:
+            raise APIError(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    reason="Отсутствует обязательный параметр (phone или email на выбор)",
+            )
+        
+        # Generate OTP
+        secret = pyotp.random_base32()
+        totp = pyotp.TOTP(secret, interval=settings().TOTP_LIFETIME)
+        otp = totp.now()
+
+        # Check for spam
+        totp_contact = data.get("phone", None) or data.get("email", None)
+        users_secrets = self.session.query(TotpSecret).filter(TotpSecret.contact == totp_contact)
+        for users_secret in users_secrets:
+            if users_secret.created_time + datetime.timedelta(seconds=30) < datetime.datetime.now():
+                raise APIError(
+                    status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                    reason="Новый код можно отправлять раз в 30 секунд"
+                )
+            self.session.delete(users_secret)
+        self.session.commit()
+        new_totp_secret = TotpSecret(contact=totp_contact, secret=secret)
+        self.session.add(new_totp_secret)
+        try:
+            self.session.commit()
+        except IntegrityError:
+            raise APIError(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                reason="Invalid data"
+            )
+        # Send OTP
         if "phone" in data:
-            user_exists = bool(self.session.query(User).filter(User.phone == data["phone"]).first())
-            secret = pyotp.random_base32()
-            totp = pyotp.TOTP(secret, interval=settings().TOTP_LIFETIME)
-            otp = totp.now()
             if settings().SMSAERO_ENABLE:
-                response = self.smsaero.send(data["phone"], f"Ваш код для putchik.ru: {otp}")
-                # Обработка ошибок sms-aero
-                if not response:
+                try:
+                    response = self.smsaero.send(data["phone"], f"Ваш код для putchik.ru: {otp}")
+                    # Обработка ошибок sms-aero
+                    if not response:
+                        logging.warning("sms-aero is offline")
+                        raise APIError(
+                            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                            reason="Sms service is offline, try email"
+                        )
+                except:
                     logging.warning("sms-aero is offline")
                     raise APIError(
                         status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
@@ -68,29 +112,32 @@ class UserService:
                     )
             else:
                 logging.info(f"Ваш код для putchik.ru: {otp}")
-            users_secrets = self.session.query(TotpSecret).filter(TotpSecret.contact == data["phone"])
-            for users_secret in users_secrets:
-                self.session.delete(users_secret)
-            self.session.commit()
-            new_totp_secret = TotpSecret(contact=data["phone"], secret=secret)
-            self.session.add(new_totp_secret)
-            try:
-                self.session.commit()
-            except IntegrityError:
-                raise APIError(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    reason="Invalid data"
-                )
-            return {"user_exists": user_exists}
-
-        elif "email" in data:
-            user_exists = bool(self.session.query(User).filter(User.login == data["email"]).first())
-            # TODO
         else:
-            raise APIError(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    reason="Отсутствует обязательный параметр (phone или email)",
-            )
+            if settings().SMTP_ENABLE:
+                try:
+                    msg = MIMEMultipart()
+                    msg['From'] = settings().SMTP_USER
+                    msg['To'] = totp_contact
+                    msg['Subject'] = f"Код авторизации Poputchik - {otp}"
+                    msg.attach(MIMEText(f"Код авторизации Poputchik - {otp}", 'plain'))
+                    server = smtplib.SMTP("smtp.gmail.com", 587)
+                    server.starttls()
+                    server.login(settings().SMTP_USER, settings().SMTP_PASSWORD)
+                    text = msg.as_string()
+                    server.sendmail(settings().SMTP_USER, totp_contact, text)
+                    server.quit()
+                except Exception as err:
+                    logging.error(f"Failed to send email: {err}")
+                    raise APIError(
+                        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                        reason=f"Failed to send email, try sms"
+                    )
+            else:
+                logging.info(f"Ваш код для putchik.ru: {otp}")
+
+        user_exists = bool(self.session.query(User).filter(User.phone == totp_contact).first())
+
+        return {"user_exists": user_exists}
         
         
     def verify_otp(self, data):

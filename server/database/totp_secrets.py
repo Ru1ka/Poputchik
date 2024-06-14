@@ -1,3 +1,4 @@
+import datetime
 import sqlalchemy
 from .db_session import SqlAlchemyBase
 from sqlalchemy import orm
@@ -10,3 +11,4 @@ class TotpSecret(SqlAlchemyBase):
     id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, autoincrement=True)
     contact = sqlalchemy.Column(sqlalchemy.String, nullable=False, unique=True)
     secret = sqlalchemy.Column(sqlalchemy.String, nullable=False)
+    created_time = sqlalchemy.Column(sqlalchemy.DateTime, default=datetime.datetime.utcnow)
