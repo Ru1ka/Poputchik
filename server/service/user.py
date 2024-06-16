@@ -51,7 +51,7 @@ class UserService:
         totp_contact = data.get("phone", None) or data.get("email", None)
         users_secrets = self.session.query(TotpSecret).filter(TotpSecret.contact == totp_contact)
         for users_secret in users_secrets:
-            if users_secret.created_time + datetime.timedelta(seconds=30) < datetime.datetime.now():
+            if users_secret.created_time + datetime.timedelta(seconds=30) >= datetime.datetime.now():
                 raise APIError(
                     status_code=status.HTTP_429_TOO_MANY_REQUESTS,
                     reason="Новый код можно отправлять раз в 30 секунд"
@@ -136,7 +136,6 @@ class UserService:
                 logging.info(f"Ваш код для putchik.ru: {otp}")
 
         user_exists = bool(self.session.query(User).filter(User.phone == totp_contact).first())
-
         return {"user_exists": user_exists}
         
         

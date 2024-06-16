@@ -14,19 +14,6 @@ services:
     depends_on:
       - db
 
-  frontend:
-    build:
-      context: ./frontend
-    container_name: frontend
-    networks:
-      - app-network
-    ports:
-      - "${FRONTEND_PORT}:${FRONTEND_PORT}"
-    env_file:
-      - .env
-    volumes:
-      - ./frontend:/app
-
   nginx:
     image: nginx:latest
     container_name: nginx
@@ -41,14 +28,12 @@ services:
     entrypoint: ["/nginx_setup.sh"]
     depends_on:
       - server
-      - frontend
     networks:
       - app-network
     environment:
       - DOMAIN=${DOMAIN}
       - ENVIRONMENT=${ENVIRONMENT}
       - SERVER_PORT=${SERVER_PORT}
-      - FRONTEND_PORT=${FRONTEND_PORT}
     env_file:
       - .env
 

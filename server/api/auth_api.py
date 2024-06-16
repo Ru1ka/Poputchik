@@ -15,18 +15,24 @@ router = APIRouter(
 
 @router.post("/send_code", status_code=200, response_model=SendCodeReturn)
 async def send_code(data: SendCode, service: UserService = Depends()):
+    """
+    Отправка OTP на телефон или email
+    """
     return service.send_totp_code(data)
 
 
 @router.post("/verify_otp", response_model=Token)
 async def sign_in(data: VerifyTotpCode, service: UserService = Depends()):
+    """
+    Проверка OTP
+    """
     return service.verify_otp(data)
 
 
 @router.post("/token")
 async def sign_in(data: OAuth2PasswordRequestForm = Depends(), service: UserService = Depends()):
     """
-    Костыль для работы локального swagger в /docs
+    Необходимо для работы локального swagger в /docs
     """
     data = VerifyTotpCode(login=data.username, password=data.password)
     return {"access_token": service.verify_totp_code(data).token, "token_type": "bearer"}
