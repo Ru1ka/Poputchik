@@ -12,6 +12,6 @@ class Order(SqlAlchemyBase):
     content = sqlalchemy.Column(sqlalchemy.String, nullable=False)
     createdAt = sqlalchemy.Column(sqlalchemy.DateTime, default=datetime.datetime.utcnow)
 
-    customer_id = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey('users.id'))
+    customer_id = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey('Users.id'))
     customer = orm.relationship("User", back_populates="orders")
     

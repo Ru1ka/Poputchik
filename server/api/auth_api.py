@@ -29,10 +29,10 @@ async def sign_in(data: VerifyTotpCode, service: UserService = Depends()):
     return service.verify_otp(data)
 
 
-@router.post("/token")
-async def sign_in(data: OAuth2PasswordRequestForm = Depends(), service: UserService = Depends()):
-    """
-    Необходимо для работы локального swagger в /docs
-    """
-    data = VerifyTotpCode(login=data.username, password=data.password)
-    return {"access_token": service.verify_totp_code(data).token, "token_type": "bearer"}
+# @router.post("/token")
+# async def sign_in(data: OAuth2PasswordRequestForm, service: UserService = Depends()):
+#     """
+#     Необходимо для работы локального swagger в /docs
+#     """
+
+#     return {"access_token": service.verify_otp(data).token, "token_type": "bearer"}

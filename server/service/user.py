@@ -13,7 +13,7 @@ from email.mime.text import MIMEText
 from database.users import User
 from database.db_session import get_session
 from database.totp_secrets import TotpSecret
-# from schemas.user_pdc import Profile, Token, UpdatePassword, UpdateUser, AddFriend, FriendsReturnObject, RemoveFriend
+from schemas.user_pdc import Profile
 from schemas.auth_pdc import Token
 from errors import APIError
 from settings import settings
@@ -25,8 +25,8 @@ class UserService:
     def __init__(self, session: Session = Depends(get_session)):
         self.session = session
 
-    # def get_me(self, user: User):
-    #     return Profile.from_orm(user)
+    def get_me(self, user: User):
+        return Profile.from_orm(user)
     
     def send_totp_code(self, data):
         data = data.dict(exclude_unset=True)
@@ -58,6 +58,8 @@ class UserService:
                 )
             self.session.delete(users_secret)
         self.session.commit()
+
+        # Save totp secret in db
         new_totp_secret = TotpSecret(contact=totp_contact, secret=secret)
         self.session.add(new_totp_secret)
         try:
@@ -65,8 +67,9 @@ class UserService:
         except IntegrityError:
             raise APIError(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                reason="Invalid data"
+                reason="DB error, invalid data"
             )
+
         # Send OTP
         if "phone" in data:
             if settings().SMSAERO_ENABLE:
@@ -141,40 +144,53 @@ class UserService:
         
     def verify_otp(self, data):
         data = data.dict(exclude_unset=True)
-        if "phone" in data:
-            totp_secret = self.session.query(TotpSecret).filter(TotpSecret.contact == data["phone"]).first()
-            if not totp_secret:
-                raise APIError(
-                    status_code=status.HTTP_404_NOT_FOUND,
-                    reason="Юзер с этим номером не делал запроса на получение смс-кода",
-            )
-            totp = pyotp.TOTP(totp_secret.secret, interval=settings().TOTP_LIFETIME)
-            if not totp.verify(data["OTP"]):
-                raise APIError(
-                    status_code=status.HTTP_401_UNAUTHORIZED,
-                    reason="Не правильный смс-код"
-                )
-            user = self.session.query(User).filter(User.phone == data["phone"]).first()
-        elif "email" in data:
-            pass
-            # TODO
-        else:
+        # Validation
+        if "phone" in data and "email" in data:
             raise APIError(
                     status_code=status.HTTP_400_BAD_REQUEST,
-                    reason="Отсутствует обязательный параметр (phone или email)",
+                    reason="Слишком много параметров. Выберите один: email или phone",
             )
+        elif "phone" not in data and "email" not in data:
+            raise APIError(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    reason="Отсутствует обязательный параметр (phone или email на выбор)",
+            )
+        
+        # Verification
+        totp_contact = data.get("phone", None) or data.get("email", None)
+        totp_secret = self.session.query(TotpSecret).filter(TotpSecret.contact == totp_contact).first()
+        if totp_secret.attempts >= 3:
+            raise APIError(
+                status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                reason="Код был введен неправильно 3 раза, отправьте новый код",
+            )
+        
+        if not totp_secret:
+            raise APIError(
+                status_code=status.HTTP_404_NOT_FOUND,
+                reason="Юзер с этим номером не делал запроса на получение кода",
+            )
+        totp = pyotp.TOTP(totp_secret.secret, interval=settings().TOTP_LIFETIME)
+        if not totp.verify(data["OTP"]):
+            totp_secret.attempts += 1
+            self.session.commit()
+            raise APIError(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                reason="Не правильный код"
+            )
+        user = self.session.query(User).filter(User.phone == totp_contact).first()
         
         if not user:
             del data["OTP"]
             user = User(**data)
+            self.session.add(user)
             try:
                 self.session.commit()
             except IntegrityError:
                 raise APIError(
                     status_code=status.HTTP_400_BAD_REQUEST,
-                    reason="Invalid data"
+                    reason="DB error, invalid data"
                 )
-
         payload = {
             "sub": user.id,
             "exp": datetime.datetime.utcnow() + datetime.timedelta(days=14),
@@ -197,7 +213,7 @@ class UserService:
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 reason="Wrong JWT"
             )
-        
+        print(payload["sub"])
         user = self.session.query(User).filter(User.id == payload["sub"]).first()
         if not user:
             raise APIError(
