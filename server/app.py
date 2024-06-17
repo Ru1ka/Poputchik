@@ -39,22 +39,6 @@ async def get_documentation():
     return get_swagger_ui_html(openapi_url="/openapi.json", title="docs")
 
 
-@app.exception_handler(RequestValidationError)
-async def validation_exception_handler(request: Request, exc: RequestValidationError):
-    return JSONResponse(
-        status_code=status.HTTP_400_BAD_REQUEST,
-        content=jsonable_encoder({"detail": exc.errors(), "reason": "Validaton error"}),
-    )
-
-
-@app.exception_handler(errors.APIError)
-async def api_error_handler(request: Request, exc: errors.APIError):
-    return JSONResponse(
-        status_code=exc.status_code,
-        content={"reason": exc.reason},
-    )
-
-
 @app.exception_handler(500)
 async def internal_server_error_handler(request: Request, exc: Exception):
     return JSONResponse(

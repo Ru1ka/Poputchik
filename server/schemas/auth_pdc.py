@@ -8,7 +8,7 @@ class SendCode(BaseModel):
     email: Optional[str] = Field(None, pattern="^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$", example="your@email.com")
 
 class SendCodeReturn(BaseModel):
-    user_exists: str
+    user_exists: bool
 
 
 class VerifyTotpCode(BaseModel):

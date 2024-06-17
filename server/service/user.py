@@ -1,4 +1,4 @@
-from fastapi import Depends, status
+from fastapi import Depends, status, HTTPException
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 from log_config import logger as logging
@@ -15,7 +15,6 @@ from database.db_session import get_session
 from database.totp_secrets import TotpSecret
 from schemas.user_pdc import Profile
 from schemas.auth_pdc import Token
-from errors import APIError
 from settings import settings
 
 
@@ -32,14 +31,14 @@ class UserService:
         data = data.dict(exclude_unset=True)
         # Validation
         if "phone" in data and "email" in data:
-            raise APIError(
+            raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
-                    reason="Слишком много параметров. Выберите один: email или phone",
+                    detail="Слишком много параметров. Выберите один: email или phone.",
             )
         elif "phone" not in data and "email" not in data:
-            raise APIError(
+            raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
-                    reason="Отсутствует обязательный параметр (phone или email на выбор)",
+                    detail="Отсутствует обязательный параметр (phone или email на выбор).",
             )
         
         # Generate OTP
@@ -52,9 +51,9 @@ class UserService:
         users_secrets = self.session.query(TotpSecret).filter(TotpSecret.contact == totp_contact)
         for users_secret in users_secrets:
             if users_secret.created_time + datetime.timedelta(seconds=30) >= datetime.datetime.now():
-                raise APIError(
+                raise HTTPException(
                     status_code=status.HTTP_429_TOO_MANY_REQUESTS,
-                    reason="Новый код можно отправлять раз в 30 секунд"
+                    detail="Новый код можно отправлять раз в 30 секунд."
                 )
             self.session.delete(users_secret)
         self.session.commit()
@@ -65,9 +64,9 @@ class UserService:
         try:
             self.session.commit()
         except IntegrityError:
-            raise APIError(
+            raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                reason="DB error, invalid data"
+                detail="DB error, invalid data."
             )
 
         # Send OTP
@@ -78,40 +77,40 @@ class UserService:
                     # Обработка ошибок sms-aero
                     if not response:
                         logging.warning("sms-aero is offline")
-                        raise APIError(
+                        raise HTTPException(
                             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-                            reason="Sms service is offline, try email"
+                            detail="Sms service is offline, try email."
                         )
                 except:
                     logging.warning("sms-aero is offline")
-                    raise APIError(
+                    raise HTTPException(
                         status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-                        reason="Sms service is offline, try email"
+                        detail="Sms service is offline, try email."
                     )
                 if not response["success"]:
                     # str in response["message"], тк доки "API 2.0 SMS Aero" не до конца совпдают с реальностью
                     # Это перестраховка.
                     if "Not enough money" in response["message"]:
-                        logging.error("There are not enough funds in the account to send an SMS code")
-                        raise APIError(
+                        logging.error("There are not enough funds in the account to send an SMS code.")
+                        raise HTTPException(
                                 status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-                                reason="Try email"
+                                detail="Try email."
                             )
                     elif "Invalid ip-address" in response["message"]:
-                        logging.error("No access to the sms-api from the current ip server")
-                        raise APIError(
+                        logging.error("No access to the sms-api from the current ip server.")
+                        raise HTTPException(
                             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-                            reason="Try email"
+                            detail="Try email."
                         )
                     elif "Validation error" in response["message"]:
-                        raise APIError(
+                        raise HTTPException(
                             status_code=status.HTTP_400_BAD_REQUEST,
-                            reason="Wrong phone"
+                            detail="Wrong phone."
                         )
-                    logging.warning(f"sms-api: {response.message}")
-                    raise APIError(
+                    logging.warning(f"sms-api: '{response.message}'.")
+                    raise HTTPException(
                         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                        reason=f"sms-api: {response.message}"
+                        detail=f"sms-api: '{response.message}'."
                     )
             else:
                 logging.info(f"Ваш код для putchik.ru: {otp}")
@@ -131,9 +130,9 @@ class UserService:
                     server.quit()
                 except Exception as err:
                     logging.error(f"Failed to send email: {err}")
-                    raise APIError(
+                    raise HTTPException(
                         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                        reason=f"Failed to send email, try sms"
+                        detail=f"Failed to send email, try sms."
                     )
             else:
                 logging.info(f"Ваш код для putchik.ru: {otp}")
@@ -146,37 +145,37 @@ class UserService:
         data = data.dict(exclude_unset=True)
         # Validation
         if "phone" in data and "email" in data:
-            raise APIError(
+            raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
-                    reason="Слишком много параметров. Выберите один: email или phone",
+                    detail="Слишком много параметров. Выберите один: email или phone.",
             )
         elif "phone" not in data and "email" not in data:
-            raise APIError(
+            raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
-                    reason="Отсутствует обязательный параметр (phone или email на выбор)",
+                    detail="Отсутствует обязательный параметр (phone или email на выбор).",
             )
         
         # Verification
         totp_contact = data.get("phone", None) or data.get("email", None)
         totp_secret = self.session.query(TotpSecret).filter(TotpSecret.contact == totp_contact).first()
+        if not totp_secret:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Юзер с этим номером/email не делал запроса на получение кода.",
+            )
         if totp_secret.attempts >= 3:
-            raise APIError(
+            raise HTTPException(
                 status_code=status.HTTP_429_TOO_MANY_REQUESTS,
-                reason="Код был введен неправильно 3 раза, отправьте новый код",
+                detail="Код был введен неправильно 3 раза, отправьте новый код.",
             )
         
-        if not totp_secret:
-            raise APIError(
-                status_code=status.HTTP_404_NOT_FOUND,
-                reason="Юзер с этим номером не делал запроса на получение кода",
-            )
         totp = pyotp.TOTP(totp_secret.secret, interval=settings().TOTP_LIFETIME)
         if not totp.verify(data["OTP"]):
             totp_secret.attempts += 1
             self.session.commit()
-            raise APIError(
+            raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                reason="Не правильный код"
+                detail="Неправильный код."
             )
         user = self.session.query(User).filter(User.phone == totp_contact).first()
         
@@ -187,9 +186,9 @@ class UserService:
             try:
                 self.session.commit()
             except IntegrityError:
-                raise APIError(
+                raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
-                    reason="DB error, invalid data"
+                    detail="DB error, invalid data."
                 )
         payload = {
             "sub": user.id,
@@ -204,20 +203,19 @@ class UserService:
         try:
             payload = jwt.decode(token, settings().JWT_SECRET, algorithms=['HS256'])
         except jwt.ExpiredSignatureError:
-            raise APIError(
+            raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                reason="JWT expired"
+                detail="JWT expired."
             )
         except jwt.InvalidTokenError:
-            raise APIError(
+            raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                reason="Wrong JWT"
+                detail="Wrong JWT."
             )
-        print(payload["sub"])
         user = self.session.query(User).filter(User.id == payload["sub"]).first()
         if not user:
-            raise APIError(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                reason="Wrong user_id, maybe user has been deleted"
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Wrong user_id, maybe user has been deleted."
             )
         return user
