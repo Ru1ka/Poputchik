@@ -1,6 +1,7 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, Extra
 from typing import Optional
 from datetime import datetime
+
 
 
 class OkReturn(BaseModel):

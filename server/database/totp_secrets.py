@@ -11,5 +11,5 @@ class TotpSecret(SqlAlchemyBase):
     id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, autoincrement=True)
     contact = sqlalchemy.Column(sqlalchemy.String, nullable=False, unique=True)
     secret = sqlalchemy.Column(sqlalchemy.String, nullable=False)
-    created_time = sqlalchemy.Column(sqlalchemy.DateTime, default=datetime.datetime.utcnow)
+    created_at = sqlalchemy.Column(sqlalchemy.DateTime, default=datetime.datetime.utcnow)
     attempts = sqlalchemy.Column(sqlalchemy.Integer, nullable=False, default=0)

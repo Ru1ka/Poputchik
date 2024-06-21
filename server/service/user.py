@@ -27,6 +27,31 @@ class UserService:
     def get_me(self, user: User):
         return Profile.from_orm(user)
     
+    def _get_user(self, phone=None, email=None):
+        if phone:
+            user = self.session.query(User).filter(User.phone == phone).first()
+        elif email:
+            user = self.session.query(User).filter(User.email == email).first()
+        else:
+            user = None
+        return user
+
+    def user_exists(self, data):
+        data = data.dict()
+        if not (data["phone"] or data["email"]):
+            raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Отсутствует обязательный параметр (phone или email на выбор).",
+            )
+        if data["phone"] and data["email"]:
+            raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Оставьте только одно поле: email или phone",
+            )
+        user = self._get_user(phone=data["phone"], email=data["email"])
+
+        return {"user_exists": bool(user)}
+    
     def send_totp_code(self, data):
         data = data.dict(exclude_unset=True)
         # Validation
@@ -113,7 +138,7 @@ class UserService:
                         detail=f"sms-api: '{response.message}'."
                     )
             else:
-                logging.info(f"Ваш код для putchik.ru: {otp}")
+                logging.info(f"SMSAERO_ENABLE is False; Ваш код для putchik.ru: {otp}")
         else:
             if settings().SMTP_ENABLE:
                 try:
@@ -135,40 +160,40 @@ class UserService:
                         detail=f"Failed to send email, try sms."
                     )
             else:
-                logging.info(f"Ваш код для putchik.ru: {otp}")
-
-        user_exists = bool(self.session.query(User).filter(User.phone == totp_contact).first())
-        return {"user_exists": user_exists}
-        
-        
-    def verify_otp(self, data):
-        data = data.dict(exclude_unset=True)
+                logging.info(f"SMTP_ENABLE is False; Ваш код для putchik.ru: {otp}")
+        return {"status": "ok"}
+    
+    def _create_jwt(self, user) -> str:
+        payload = {
+            "sub": user.id,
+            "exp": datetime.datetime.utcnow() + datetime.timedelta(days=14),
+            "custom_data": {"created": datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%f")}
+        }
+        return jwt.encode(payload, settings().JWT_SECRET, algorithm='HS256')
+    
+    def _verify_otp(self, data: dict) -> True:
         # Validation
-        if "phone" in data and "email" in data:
+        totp_contact = data.get(data["totp_contact_type"], None)
+        if not totp_contact:
             raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
-                    detail="Слишком много параметров. Выберите один: email или phone.",
+                    detail=f"Отсутствует выбранный параметр для верификации: {data['totp_contact_type']}",
             )
-        elif "phone" not in data and "email" not in data:
-            raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail="Отсутствует обязательный параметр (phone или email на выбор).",
-            )
-        
         # Verification
-        totp_contact = data.get("phone", None) or data.get("email", None)
-        totp_secret = self.session.query(TotpSecret).filter(TotpSecret.contact == totp_contact).first()
+        totp_secret = self.session.query(TotpSecret).filter(
+            TotpSecret.contact == totp_contact, 
+            TotpSecret.created_at >= datetime.datetime.utcnow() - datetime.timedelta(seconds=180)
+        ).first()
         if not totp_secret:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail="Юзер с этим номером/email не делал запроса на получение кода.",
+                detail=f"Пользоватиель с этим '{data['totp_contact_type']}' не делал запроса на получение кода.",
             )
-        if totp_secret.attempts >= 3:
+        elif totp_secret.attempts >= 3:
             raise HTTPException(
                 status_code=status.HTTP_429_TOO_MANY_REQUESTS,
                 detail="Код был введен неправильно 3 раза, отправьте новый код.",
             )
-        
         totp = pyotp.TOTP(totp_secret.secret, interval=settings().TOTP_LIFETIME)
         if not totp.verify(data["OTP"]):
             totp_secret.attempts += 1
@@ -177,27 +202,49 @@ class UserService:
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Неправильный код."
             )
-        user = self.session.query(User).filter(User.phone == totp_contact).first()
-        
-        if not user:
-            del data["OTP"]
-            user = User(**data)
-            self.session.add(user)
-            try:
-                self.session.commit()
-            except IntegrityError:
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail="DB error, invalid data."
-                )
-        payload = {
-            "sub": user.id,
-            "exp": datetime.datetime.utcnow() + datetime.timedelta(days=14),
-            "custom_data": {"created": datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%f")}
-        }
-        jwt_token = jwt.encode(payload, settings().JWT_SECRET, algorithm='HS256')
+        self.session.delete(totp_secret)
+        self.session.commit()
+        return True
 
-        return Token(token=jwt_token)
+    def register(self, data):
+        data = data.dict(exclude_unset=True)
+        self._verify_otp(data)
+        user = self._get_user(data.get("phone"), data.get("email"))
+        if user:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Пользователь с этим phone/email уже существует"
+            )
+        
+        if data["user_type"] == "individual" and "inn" not in data:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="user_type == 'individual' должен иметь поле 'inn'"
+            )
+        # Create user
+        del data["OTP"]
+        del data["totp_contact_type"]
+        user = User(**data)
+        self.session.add(user)
+        try:
+            self.session.commit()
+        except IntegrityError:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="DB error, invalid data."
+            )
+        return {"token": self._create_jwt(user)}
+
+    def sign_in(self, data):
+        data = data.dict(exclude_unset=True)
+        self._verify_otp(data)
+        user = self._get_user(data.get("phone"), data.get("email"))
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Пользователь не зарегистрирован"
+            )
+        return {"token": self._create_jwt(user)}
     
     def verify_jwt(self, token: str):
         try:

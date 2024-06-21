@@ -10,8 +10,7 @@ class Order(SqlAlchemyBase):
 
     id = sqlalchemy.Column("id", sqlalchemy.Text, primary_key=True, default=lambda: str(uuid.uuid4()))
     content = sqlalchemy.Column(sqlalchemy.String, nullable=False)
-    createdAt = sqlalchemy.Column(sqlalchemy.DateTime, default=datetime.datetime.utcnow)
+    created_at = sqlalchemy.Column(sqlalchemy.DateTime, default=datetime.datetime.utcnow)
 
     customer_id = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey('Users.id'))
     customer = orm.relationship("User", back_populates="orders")
-    
