@@ -33,22 +33,3 @@ def settings():
         _env_file="../.env",
         _env_file_encoding="utf-8",
     )
-
-
-# from pydantic import BaseSettings
-
-# class Settings(BaseSettings):
-#     postgres_user: str
-#     postgres_password: str
-#     postgres_db: str
-#     pgadmin_default_email: str
-#     pgadmin_default_password: str
-#     domain: str
-#     debug: bool
-#     environment: str
-#     server_port: int
-
-#     class Config:
-#         env_file = ".env"
-
-# settings = Settings()

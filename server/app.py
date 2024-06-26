@@ -16,8 +16,6 @@ from database import db_session
 from settings import settings
 
 
-
-
 db_session.global_init()
 app = FastAPI(
     title="API",
@@ -27,6 +25,7 @@ app = FastAPI(
 )
 app.include_router(router)
 
+# CORS
 origins = [
     "http://localhost.tiangolo.com",
     "https://localhost.tiangolo.com",

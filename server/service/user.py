@@ -7,6 +7,8 @@ import pyotp
 import datetime
 from smsaero import SmsAero
 import smtplib
+from email.utils import formataddr
+from email.header import Header
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
@@ -132,10 +134,10 @@ class UserService:
             if settings().SMTP_ENABLE:
                 try:
                     msg = MIMEMultipart()
-                    msg['From'] = settings().SMTP_USER
+                    msg['From'] = formataddr((str(Header("Попутчик", 'utf-8')), settings().SMTP_USER))
                     msg['To'] = totp_contact
-                    msg['Subject'] = f"Код авторизации Poputchik - {otp}"
-                    msg.attach(MIMEText(f"Код авторизации Poputchik - {otp}", 'plain'))
+                    msg['Subject'] = f"Код авторизации putchik.ru - {otp}"
+                    msg.attach(MIMEText(f"Код авторизации putchik.ru - {otp}", 'plain'))
                     server = smtplib.SMTP_SSL(settings().SMTP_SERVER, settings().SMTP_PORT)
                     server.login(settings().SMTP_USER, settings().SMTP_PASSWORD)
                     text = msg.as_string()
