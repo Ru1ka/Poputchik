@@ -16,6 +16,8 @@ class Settings(BaseSettings):
     SMSAERO_API_KEY: str
 
     SMTP_ENABLE: bool
+    SMTP_SERVER: str
+    SMTP_PORT: int
     SMTP_USER: str
     SMTP_PASSWORD: str
 

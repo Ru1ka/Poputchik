@@ -75,24 +75,13 @@ class UserService:
         totp_contact = data.get("phone", None) or data.get("email", None)
         users_secrets = self.session.query(TotpSecret).filter(TotpSecret.contact == totp_contact)
         for users_secret in users_secrets:
-            if users_secret.created_time + datetime.timedelta(seconds=30) >= datetime.datetime.now():
+            if users_secret.created_at + datetime.timedelta(seconds=30) >= datetime.datetime.now():
                 raise HTTPException(
                     status_code=status.HTTP_429_TOO_MANY_REQUESTS,
                     detail="Новый код можно отправлять раз в 30 секунд."
                 )
             self.session.delete(users_secret)
         self.session.commit()
-
-        # Save totp secret in db
-        new_totp_secret = TotpSecret(contact=totp_contact, secret=secret)
-        self.session.add(new_totp_secret)
-        try:
-            self.session.commit()
-        except IntegrityError:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="DB error, invalid data."
-            )
 
         # Send OTP
         if "phone" in data:
@@ -147,8 +136,8 @@ class UserService:
                     msg['To'] = totp_contact
                     msg['Subject'] = f"Код авторизации Poputchik - {otp}"
                     msg.attach(MIMEText(f"Код авторизации Poputchik - {otp}", 'plain'))
-                    server = smtplib.SMTP("smtp.gmail.com", 587)
-                    server.starttls()
+                    server = smtplib.SMTP_SSL(settings().SMTP_SERVER, settings().SMTP_PORT)
+                    print(1)
                     server.login(settings().SMTP_USER, settings().SMTP_PASSWORD)
                     text = msg.as_string()
                     server.sendmail(settings().SMTP_USER, totp_contact, text)
@@ -161,6 +150,18 @@ class UserService:
                     )
             else:
                 logging.info(f"SMTP_ENABLE is False; Ваш код для putchik.ru: {otp}")
+        
+        # Save totp secret in db
+        new_totp_secret = TotpSecret(contact=totp_contact, secret=secret)
+        self.session.add(new_totp_secret)
+        try:
+            self.session.commit()
+        except IntegrityError:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="DB error, invalid data."
+            )
+
         return {"status": "ok"}
     
     def _create_jwt(self, user) -> str:
