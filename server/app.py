@@ -1,5 +1,6 @@
 from urllib.request import Request
 
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI, status
 from fastapi.encoders import jsonable_encoder
 from fastapi.openapi.docs import get_swagger_ui_html
@@ -15,6 +16,8 @@ from database import db_session
 from settings import settings
 
 
+
+
 db_session.global_init()
 app = FastAPI(
     title="API",
@@ -23,6 +26,25 @@ app = FastAPI(
     docs_url="/docs",
 )
 app.include_router(router)
+
+origins = [
+    "http://localhost.tiangolo.com",
+    "https://localhost.tiangolo.com",
+    "http://localhost",
+    "http://localhost:8000",
+    "http://localhost:8080",
+    "http://localhost:5173",
+    "http://putchik.ru",
+    "https://putchik.ru"
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Custom auto autorization using JWT instead of login+password in /docs
 app.openapi_schema = None

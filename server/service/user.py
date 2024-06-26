@@ -137,7 +137,6 @@ class UserService:
                     msg['Subject'] = f"Код авторизации Poputchik - {otp}"
                     msg.attach(MIMEText(f"Код авторизации Poputchik - {otp}", 'plain'))
                     server = smtplib.SMTP_SSL(settings().SMTP_SERVER, settings().SMTP_PORT)
-                    print(1)
                     server.login(settings().SMTP_USER, settings().SMTP_PASSWORD)
                     text = msg.as_string()
                     server.sendmail(settings().SMTP_USER, totp_contact, text)
