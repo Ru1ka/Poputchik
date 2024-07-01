@@ -13,10 +13,10 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
 from database.users import User
+from database.organizations import Organization
 from database.db_session import get_session
 from database.totp_secrets import TotpSecret
-from schemas.user_pdc import Profile
-from schemas.auth_pdc import Token
+import schemas.user_pdc as user_pdc
 from settings import settings
 
 
@@ -26,8 +26,17 @@ class UserService:
     def __init__(self, session: Session = Depends(get_session)):
         self.session = session
 
+    def _safe_commit(self):
+        try:
+            self.session.commit()
+        except IntegrityError:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="DB error, invalid data."
+            )
+
     def get_me(self, user: User):
-        return Profile.from_orm(user)
+        return user
     
     def _get_user(self, phone=None, email=None):
         if phone:
@@ -155,13 +164,7 @@ class UserService:
         # Save totp secret in db
         new_totp_secret = TotpSecret(contact=totp_contact, secret=secret)
         self.session.add(new_totp_secret)
-        try:
-            self.session.commit()
-        except IntegrityError:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="DB error, invalid data."
-            )
+        self._safe_commit()
 
         return {"status": "ok"}
     
@@ -208,7 +211,7 @@ class UserService:
         self.session.commit()
         return True
 
-    def register(self, data):
+    def register(self, data, as_organization=False):
         data = data.dict(exclude_unset=True)
         self._verify_otp(data)
         user = self._get_user(data.get("phone"), data.get("email"))
@@ -217,24 +220,29 @@ class UserService:
                 status_code=status.HTTP_409_CONFLICT,
                 detail="Пользователь с этим phone/email уже существует"
             )
-        
-        if data["user_type"] == "individual" and "inn" not in data:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="user_type == 'individual' должен иметь поле 'inn'"
-            )
         # Create user
-        del data["OTP"]
-        del data["totp_contact_type"]
-        user = User(**data)
-        self.session.add(user)
-        try:
-            self.session.commit()
-        except IntegrityError:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="DB error, invalid data."
+        if as_organization:
+            organization = Organization(organization_name=data["organization_name"], inn=data["inn"])
+            self.session.add(organization)
+            self._safe_commit()
+            print(organization.id)
+            user = User(
+                name=data.get("organization_name"),
+                email=data.get("email"),
+                phone=data.get("phone"),
+                is_organization_account=True,
+                organization_id=organization.id
             )
+            self.session.add(user)
+        else:
+            user = User(
+                name=data.get("name"),
+                email=data.get("email"),
+                phone=data.get("phone"),
+                is_organization_account=False,
+            )
+            self.session.add(user)
+        self._safe_commit()
         return {"token": self._create_jwt(user)}
 
     def sign_in(self, data):

@@ -30,8 +30,7 @@ def global_init():
             SqlAlchemyBase.metadata.create_all(engine)
             break
         except Exception as error:
-            logging.warning("Database is not ready yet")
-            logging.debug(f"Database is not ready yet: {error}")
+            logging.warning(f"Database is not ready yet: {error}")
             sleep(2)
 
 

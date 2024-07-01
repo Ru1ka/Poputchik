@@ -16,7 +16,7 @@ class UserExistsReturn(BaseModel):
 
 class SignIn(BaseModel):
     OTP: str = Field(..., max_length=6, min_length=6, example="123456")
-    totp_contact_type: str = Field(..., choices=["email", "phone"])
+    totp_contact_type: str = Field(..., example="phone")
     phone: Optional[str] = Field(None, pattern="^7\d{10}$", example="70000000000")
     email: Optional[str] = Field(None, pattern="^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$", example="example@email.com")
 
@@ -25,20 +25,16 @@ class SignIn(BaseModel):
         if v not in ("phone", "email"):
             raise ValueError("contact_type должен быть 'phone' или 'email'")
         return v
-
-class Register(SignIn):
-    name: str = Field(..., example="Иван Иванов")
-    user_type: str = Field(..., example="individual")
-    inn: str = Field(None, pattern="^[0-9]+$", example="132808730606")
-
-    @validator('user_type')
-    def check_contact_type(cls, v):
-        if v not in ("physical", "individual"):
-            raise ValueError("user_type должен быть 'physical' или 'individual'")
-        return v
     
     class Config:
         extra = Extra.forbid
+    
+class RegisterPhysical(SignIn):
+    name: str = Field(..., example="Иванов Иван Иванович")
+
+class RegisterOrganization(SignIn):
+    organization_name: str = Field(..., example="Арбузы, дешево")
+    inn: str = Field(None, pattern="^\d{10}$", example="1328087306")
 
 class Token(BaseModel):
     token: str

@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 
 from service.user import UserService
-from schemas.auth_pdc import SendCode, UserExistsReturn, UserExists, SignIn, Token, Register
+import schemas.auth_pdc as auth_pdc
 from schemas.pdc import ErrorResponse, OkReturn
 # from api.dependencies import oauth2_scheme
 
@@ -13,11 +13,11 @@ router = APIRouter(
 @router.post(
     "/user_exists",
     responses={
-        200: {"model": UserExistsReturn},
+        200: {"model": auth_pdc.UserExistsReturn},
         400: {"description": "Ошибка параметров запроса.", "model": ErrorResponse},
     }
 )
-async def user_exists(data: UserExists, service: UserService = Depends()):
+async def user_exists(data: auth_pdc.UserExists, service: UserService = Depends()):
     """
     Проверка существования пользователя
     """
@@ -34,7 +34,7 @@ async def user_exists(data: UserExists, service: UserService = Depends()):
             503: {"description": "Ошибка SMSAERO или SMTP сервера. Отправка кода невозможна.", "model": ErrorResponse},
         }
 )
-async def send_code(data: SendCode, service: UserService = Depends()):
+async def send_code(data: auth_pdc.SendCode, service: UserService = Depends()):
     """
     Отправка OTP на телефон или email
     """
@@ -44,14 +44,14 @@ async def send_code(data: SendCode, service: UserService = Depends()):
 @router.post(
         "/sign_in/verify_otp", 
         responses={
-            200: {"model": Token},
+            200: {"model": auth_pdc.Token},
             400: {"description": "Ошибка параметров запроса.", "model": ErrorResponse},
             401: {"description": "Неправильный код.", "model": ErrorResponse},
             404: {"description": "Юзер с этим номером/email не делал запроса на получение кода.", "model": ErrorResponse},
             429: {"description": "Код был введен неправильно 3 раза, теперь он недействителен.", "model": ErrorResponse},
         }
 )
-async def sign_in(data: SignIn, service: UserService = Depends()):
+async def sign_in(data: auth_pdc.SignIn, service: UserService = Depends()):
     """
     Вход через OTP
     """
@@ -59,10 +59,10 @@ async def sign_in(data: SignIn, service: UserService = Depends()):
 
 
 @router.post(
-        "/register/verify_otp", 
+        "/register/as_physical/verify_otp", 
         status_code=201,
         responses={
-            201: {"model": Token},
+            201: {"model": auth_pdc.Token},
             400: {"description": "Ошибка параметров запроса.", "model": ErrorResponse},
             409: {"description": "Email/phone уже занят.", "model": ErrorResponse},
             401: {"description": "Неправильный код.", "model": ErrorResponse},
@@ -70,8 +70,27 @@ async def sign_in(data: SignIn, service: UserService = Depends()):
             429: {"description": "Код был введен неправильно 3 раза, теперь он недействителен.", "model": ErrorResponse},
         }
 )
-async def register(data: Register, service: UserService = Depends()):
+async def register_as_physical(data: auth_pdc.RegisterPhysical, service: UserService = Depends()):
     """
     Регистрация через OTP
     """
     return service.register(data)
+
+
+@router.post(
+        "/register/as_organization/verify_otp", 
+        status_code=201,
+        responses={
+            201: {"model": auth_pdc.Token},
+            400: {"description": "Ошибка параметров запроса.", "model": ErrorResponse},
+            409: {"description": "Email/phone уже занят.", "model": ErrorResponse},
+            401: {"description": "Неправильный код.", "model": ErrorResponse},
+            404: {"description": "Юзер с этим номером/email не делал запроса на получение кода.", "model": ErrorResponse},
+            429: {"description": "Код был введен неправильно 3 раза, теперь он недействителен.", "model": ErrorResponse},
+        }
+)
+async def register_as_organization(data: auth_pdc.RegisterOrganization, service: UserService = Depends()):
+    """
+    Регистрация через OTP
+    """
+    return service.register(data, as_organization=True)
