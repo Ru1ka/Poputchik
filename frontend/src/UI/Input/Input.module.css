@@ -1,0 +1,71 @@
+.input {
+    display: flex;
+    outline: none;
+    max-width: 300px;
+    margin: 0px;
+    padding: 10px 15px;
+    border-radius: 10px;
+    border: 2px solid;
+    font: inherit;
+    font-size: 15px;
+    font-weight: 500;
+    line-height: 15px;
+    transition: all 0.5s;
+}
+
+.input[type=checkbox] {
+    -webkit-appearance: none;
+    appearance: none;
+    background-color: var(--form-background);
+    margin: 0;
+
+    font: inherit;
+    color: currentColor;
+    width: 20px;
+    height: 20px;
+    border: 2px solid #D80034;
+    padding: 0px;
+    border-radius: 4px;
+
+    display: grid;
+    place-content: center;
+}
+
+.input[type="checkbox"]::before {
+    content: "";
+    width: 10px;
+    height: 10px;
+    clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+    transform: scale(0);
+    transition: 60ms transform ease-in-out;
+    box-shadow: inset 1em 1em black;
+    /* Windows High Contrast Mode */
+    background-color: CanvasText;
+}
+
+.input[type="checkbox"]:checked::before {
+    transform: scale(1);
+}
+
+/* .input[type="checkbox"]:focus {
+    outline: max(2px, 0.15em) solid currentColor;
+    outline-offset: max(2px, 0.15em);
+  } */
+
+.square {
+    padding: 10px 12px;
+    width: 45px;
+    height: 45px;
+    text-align: center;
+}
+
+.red {
+    background: none;
+    border-color: #898989;
+    color: #898989;
+}
+
+.input:focus {
+    border: 2px solid #D80034;
+    color: black;
+}

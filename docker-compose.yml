@@ -1,4 +1,15 @@
 services:
+  web:
+    build:
+      context: ./frontend
+    container_name: web
+    networks:
+      - app-network
+    ports:
+      - "${FRONTEND_PORT}:${FRONTEND_PORT}"
+    env_file:
+      - .env
+
   server:
     build:
       context: ./server
@@ -10,7 +21,7 @@ services:
     env_file:
       - .env
     volumes:
-      - ./server:/app  # Монтируем директорию для hot-reload
+      - ./server:/app
     depends_on:
       - db
 

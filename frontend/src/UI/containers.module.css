@@ -1,0 +1,29 @@
+.flex_col {
+    display: flex;
+    flex-direction: column;
+}
+
+.flex_row {
+    display: flex;
+    flex-direction: row;
+}
+
+.formContainer {
+    row-gap: 20px;
+    max-width: 300px;
+}
+
+.gap_20 {
+    gap: 20px;
+    max-width: 300px;
+}
+
+.gap_10 {
+    gap: 10px;
+    max-width: 300px;
+}
+
+.gap_6 {
+    gap: 6px;
+    max-width: 300px;
+}

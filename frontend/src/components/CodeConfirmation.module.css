@@ -1,0 +1,7 @@
+.concat_text_elements {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    white-space: break-spaces;
+    flex-wrap: wrap;
+}
