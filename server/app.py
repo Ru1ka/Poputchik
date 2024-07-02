@@ -21,8 +21,9 @@ app = FastAPI(
     title="API",
     description="Попутчик",
     debug=settings().DEBUG,
-    docs_url="/docs",
+    root_path="/api",
 )
+app.openapi_version = "3.1.0"
 app.include_router(router)
 
 # CORS

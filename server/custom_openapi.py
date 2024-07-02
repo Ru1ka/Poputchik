@@ -6,8 +6,8 @@ def custom_openapi(app):
         return app.openapi_schema
     openapi_schema = get_openapi(
         title="Custom API",
-        version="1.0.0",
-        description="This is a very custom OpenAPI schema",
+        version="2.0",
+        description="This is a custom OpenAPI schema",
         routes=app.routes,
     )
     openapi_schema["components"]["securitySchemes"] = {
