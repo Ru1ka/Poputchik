@@ -9,4 +9,5 @@ uvicorn.run(
     host="0.0.0.0",
     port=settings().SERVER_PORT,
     log_config=LOGGING_CONFIG,
+    # root_path="/api/",
 )

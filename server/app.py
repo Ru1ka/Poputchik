@@ -1,11 +1,10 @@
 from urllib.request import Request
 
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi import FastAPI, status
+from fastapi import FastAPI, APIRouter
 from fastapi.encoders import jsonable_encoder
 from fastapi.openapi.docs import get_swagger_ui_html
 from fastapi.exceptions import RequestValidationError
-from starlette import status
 from starlette.responses import JSONResponse
 
 
@@ -21,10 +20,13 @@ app = FastAPI(
     title="API",
     description="Попутчик",
     debug=settings().DEBUG,
-    root_path="/api",
+    # root_path="/api/",
+    # docs_url="/docs",
+    openapi_url="/openapi/openapi.json"
 )
-app.openapi_version = "3.1.0"
+# app.openapi_version = "3.0.3"
 app.include_router(router)
+
 
 # CORS
 origins = [
@@ -58,7 +60,8 @@ async def get_open_api_endpoint():
 
 @app.get("/docs", include_in_schema=False)
 async def get_documentation():
-    return get_swagger_ui_html(openapi_url="/openapi.json", title="docs")
+    print("here")
+    return get_swagger_ui_html(openapi_url="/openapi/aa", title="docs")
 
 
 @app.exception_handler(500)
@@ -69,7 +72,7 @@ async def internal_server_error_handler(request: Request, exc: Exception):
     )
 
 
-@app.get("/ping")
+@app.get("/api/ping")
 async def root():
     return JSONResponse(
         status_code=200,
