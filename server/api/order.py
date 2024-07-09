@@ -19,6 +19,7 @@ router = APIRouter(
     response_model_exclude_unset=True,
     responses={
         200: {"model": order_pdc.OrderCostReturn},
+        400: {"description": "Одного из адресов не существует или ORS error.", "model": ErrorResponse},
         401: {"description": "JWT expired or Wrong JWT.", "model": ErrorResponse},
         404: {"description": "Такого юзера нет в БД, скорее всего ранее он был удален.", "model": ErrorResponse},
     }
