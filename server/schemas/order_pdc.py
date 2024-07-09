@@ -18,9 +18,5 @@ class Order(BaseModel):
     temperature_condition: bool
 
 
-class OrderCost(Order):
-    VAT: bool
-
-
 class OrderCostReturn(BaseModel):
     cost: int

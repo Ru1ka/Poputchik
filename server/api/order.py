@@ -24,7 +24,7 @@ router = APIRouter(
         404: {"description": "Такого юзера нет в БД, скорее всего ранее он был удален.", "model": ErrorResponse},
     }
 )
-async def get_cost(data: order_pdc.OrderCost, user: User = Depends(verify_jwt), service: OrderService = Depends()):
+async def get_cost(data: order_pdc.Order, user: User = Depends(verify_jwt), service: OrderService = Depends()):
     """
     Получение стоимости заказа
     """
