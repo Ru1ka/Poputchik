@@ -11,3 +11,4 @@ psycopg2-binary
 python-multipart
 pyotp==2.9.0
 smsaero-api==2.2.0
+openrouteservice==2.3.3

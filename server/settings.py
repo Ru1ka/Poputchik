@@ -21,6 +21,8 @@ class Settings(BaseSettings):
     SMTP_USER: str
     SMTP_PASSWORD: str
 
+    ORS_API_KEY: str
+
     # postgresql settings
     POSTGRES_USER: str
     POSTGRES_PASSWORD: str

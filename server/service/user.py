@@ -16,7 +16,6 @@ from database.users import User
 from database.organizations import Organization
 from database.db_session import get_session
 from database.totp_secrets import TotpSecret
-import schemas.user_pdc as user_pdc
 from settings import settings
 
 
@@ -57,7 +56,7 @@ class UserService:
         if data["phone"] and data["email"]:
             raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
-                    detail="Оставьте только одно поле: email или phone",
+                    detail="Оставьте только одно поле: email или phone.",
             )
         user = self._get_user(phone=data["phone"], email=data["email"])
 
@@ -122,7 +121,7 @@ class UserService:
                                 detail="Try email."
                             )
                     elif "Invalid ip-address" in response["message"]:
-                        logging.error("No access to the sms-api from the current ip server.")
+                        logging.error("No access to the sms-api from the current server ip.")
                         raise HTTPException(
                             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
                             detail="Try email."
@@ -154,6 +153,7 @@ class UserService:
                     server.quit()
                 except Exception as err:
                     logging.error(f"Failed to send email: {err}")
+                    # TODO: 500 -> 503
                     raise HTTPException(
                         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                         detail=f"Failed to send email, try sms."
@@ -182,7 +182,7 @@ class UserService:
         if not totp_contact:
             raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
-                    detail=f"Отсутствует выбранный параметр для верификации: {data['totp_contact_type']}",
+                    detail=f"Отсутствует выбранный параметр для верификации: {data['totp_contact_type']}.",
             )
         # Verification
         totp_secret = self.session.query(TotpSecret).filter(
@@ -218,7 +218,7 @@ class UserService:
         if user:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
-                detail="Пользователь с этим phone/email уже существует"
+                detail="Пользователь с этим phone/email уже существует."
             )
         # Create user
         if as_organization:
@@ -252,7 +252,7 @@ class UserService:
         if not user:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Пользователь не зарегистрирован"
+                detail="Пользователь не зарегистрирован."
             )
         return {"token": self._create_jwt(user)}
     
