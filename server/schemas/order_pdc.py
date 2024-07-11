@@ -1,6 +1,4 @@
 from pydantic import BaseModel, Field
-from typing import Optional
-from typing import List
 from datetime import datetime
 
 
@@ -20,7 +18,8 @@ class PointORM(BaseModel):
 
 
 class Route(BaseModel):
-    route: list[Point]
+    loading_points: list[Point]
+    unloading_points: list[Point]
 
 
 class DistanceReturn(BaseModel):
