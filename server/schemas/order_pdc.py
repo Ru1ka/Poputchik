@@ -46,6 +46,12 @@ class Order(BaseModel):
     class Config:
         orm_mode = True
 
+class OrdersList(BaseModel):
+    orders: list[Order]
+
+    class Config:
+        orm_mode = True
+
 
 class CreateOrder(BaseModel):
     cargo: str = Field(..., max_length=100)

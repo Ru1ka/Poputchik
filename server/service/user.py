@@ -37,6 +37,9 @@ class UserService:
     def get_me(self, user: User):
         return user
     
+    def get_orders(self, user: User):
+        return user
+    
     def _get_user(self, phone=None, email=None):
         user = None
         if phone:
