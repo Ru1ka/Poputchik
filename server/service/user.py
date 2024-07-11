@@ -285,6 +285,8 @@ class UserService:
         data = data.dict(exclude_unset=True)
         if "name" in data:
             user.name = data["name"]
+            if user.organization:
+                user.organization.organization_name = data["name"]
         if "email" in data:
             if not data["email"] and not user.phone:
                 raise HTTPException(
