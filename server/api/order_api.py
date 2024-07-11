@@ -1,7 +1,8 @@
 from fastapi import APIRouter, Depends
 
 import schemas.order_pdc as order_pdc
-from api.dependencies import verify_jwt
+from api.dependencies import verify_jwt, verify_admin_jwt
+from service.admin import AdminService
 from service.order import OrderService
 from schemas.pdc import ErrorResponse
 from database.users import User
@@ -56,7 +57,6 @@ async def get_cost(data: order_pdc.Route, user: User = Depends(verify_jwt), serv
     status_code=201,
     responses={
         201: {"model": order_pdc.Order},
-        400: {"description": "Одного из адресов не существует или ORS error.", "model": ErrorResponse},
         401: {"description": "JWT expired or Wrong JWT.", "model": ErrorResponse},
         404: {"description": "Такого юзера нет в БД, скорее всего ранее он был удален.", "model": ErrorResponse},
     }
@@ -66,3 +66,20 @@ async def create_order(data: order_pdc.CreateOrder, user: User = Depends(verify_
     Получение стоимости заказа
     """
     return service.create_order(user, data)
+
+
+@router.put(
+    "/update", 
+    response_model=order_pdc.Order, 
+    response_model_exclude_unset=True,
+    responses={
+        200: {"model": order_pdc.Order},
+        400: {"description": "Не существующий заказ.", "model": ErrorResponse},
+        401: {"description": "JWT expired or Wrong JWT.", "model": ErrorResponse},
+    }
+)
+async def update_order(data: order_pdc.UpdateOrder, verification = Depends(verify_admin_jwt), service: OrderService = Depends()):
+    """
+    Получение профиля
+    """
+    return service.update_order(data)

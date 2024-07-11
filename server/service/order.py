@@ -143,3 +143,29 @@ class OrderService:
             self.session.add(new_point)
         self._safe_commit()
         return new_order
+
+    def update_order(self, data):
+        data = data.dict()
+        order = self.session.query(Order).filter(Order.id == data["id"]).first()
+        if not order:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Не существующий заказ."
+            )
+        if "cargo" in data:
+            order.cargo = data["cargo"]
+        if "distance" in data:
+            order.distance = data["distance"]
+        if "cost" in data:
+            order.cost = data["cost"]
+        if "weight" in data:
+            order.weight = data["weight"]
+        if "amount" in data:
+            order.amount = data["amount"]
+        if "temperature_condition" in data:
+            order.temperature_condition = data["temperature_condition"]
+        if "status" in data:
+            order.status = data["status"]
+
+        self._safe_commit()
+        return order

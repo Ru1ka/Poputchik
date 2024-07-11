@@ -9,7 +9,11 @@ class Settings(BaseSettings):
     ENVIRONMENT: str = "development"
     SERVER_PORT: int
     JWT_SECRET: str
+    JWT_ADMIN_SECRET: str
     TOTP_LIFETIME: int
+
+    ADMIN_LOGIN: str
+    ADMIN_PASSWORD: str
 
     SMSAERO_ENABLE: bool
     SMSAERO_EMAIL: str

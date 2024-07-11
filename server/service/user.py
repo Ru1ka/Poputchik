@@ -249,7 +249,10 @@ class UserService:
     def sign_in(self, data):
         data = data.dict(exclude_unset=True)
         self._verify_otp(data)
-        user = self._get_user(data.get("phone"), data.get("email"))
+        if data["totp_contact_type"] == "phone":
+            user = self._get_user(data.get("phone"))
+        else:
+            user = self._get_user(email=data.get("email"))
         if not user:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
@@ -276,4 +279,44 @@ class UserService:
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Wrong user_id, maybe user has been deleted."
             )
+        return user
+    
+    def update_me(self, user: User, data):
+        data = data.dict(exclude_unset=True)
+        if "name" in data:
+            user.name = data["name"]
+        if "email" in data:
+            if not data["email"] and not user.phone:
+                raise HTTPException(
+                    status_code=status.HTTP_409_CONFLICT,
+                    detail="Нельзя удалить единственный контакт."
+                )
+            if user.email != data["email"] and self._get_user(email=data["email"]):
+                raise HTTPException(
+                    status_code=status.HTTP_409_CONFLICT,
+                    detail="Пользователь с этим email уже существует."
+                )
+            user.email = data["email"]
+        if "phone" in data:
+            if not data["phone"] and not user.phone:
+                raise HTTPException(
+                    status_code=status.HTTP_409_CONFLICT,
+                    detail="Нельзя удалить единственный контакт."
+                )
+            if user.phone != data["phone"] and self._get_user(phone=data["phone"]):
+                raise HTTPException(
+                    status_code=status.HTTP_409_CONFLICT,
+                    detail="Пользователь с этим phone уже существует."
+                )
+            user.phone = data["phone"]
+        
+        if "inn" in data:
+            if user.organization:
+                user.organization.inn = data["inn"]
+            else:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="У пользователя нет организации, нельзя поменять ИНН."
+                )
+        self._safe_commit()
         return user

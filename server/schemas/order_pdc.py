@@ -1,20 +1,14 @@
 from pydantic import BaseModel, Field
 from datetime import datetime
 
+from schemas.pdc import Order
+
 
 class Point(BaseModel):
     locality: str = Field(..., example="Санкт-Петербург")
     address: str = Field(..., example="Невский проспект 1")
     phone: str = Field(None, pattern="^7\d{10}$", example="70000000000")
 
-
-class PointORM(BaseModel):
-    lat: str = None
-    lon: str = None
-    index: int
-
-    class Config:
-        orm_mode = True
 
 
 class Route(BaseModel):
@@ -25,26 +19,6 @@ class Route(BaseModel):
 class DistanceReturn(BaseModel):
     distance: int
 
-
-class Order(BaseModel):
-    id: int
-    readable_id: str
-    customer_id: int
-
-    cargo: str
-    created_at: datetime
-    cost: int
-    distance: int
-    weight: int
-    amount: int
-    temperature_condition: bool
-    status: str
-
-    loading_points: list[PointORM]
-    unloading_points: list[PointORM]
-
-    class Config:
-        orm_mode = True
 
 class OrdersList(BaseModel):
     orders: list[Order]
@@ -64,3 +38,15 @@ class CreateOrder(BaseModel):
 
 class OrderCostReturn(BaseModel):
     cost: int
+
+
+class UpdateOrder(BaseModel):
+    id: int
+
+    cargo: str = None
+    cost: int = None
+    distance: int = None
+    weight: int = None
+    amount: int = None
+    temperature_condition: bool = None
+    status: str = None
