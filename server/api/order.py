@@ -53,8 +53,9 @@ async def get_cost(data: order_pdc.Route, user: User = Depends(verify_jwt), serv
     "/create_order", 
     response_model=order_pdc.Order, 
     response_model_exclude_unset=True,
+    status_code=201,
     responses={
-        200: {"model": order_pdc.Order},
+        201: {"model": order_pdc.Order},
         400: {"description": "Одного из адресов не существует или ORS error.", "model": ErrorResponse},
         401: {"description": "JWT expired or Wrong JWT.", "model": ErrorResponse},
         404: {"description": "Такого юзера нет в БД, скорее всего ранее он был удален.", "model": ErrorResponse},
