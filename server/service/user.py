@@ -38,12 +38,11 @@ class UserService:
         return user
     
     def _get_user(self, phone=None, email=None):
+        user = None
         if phone:
             user = self.session.query(User).filter(User.phone == phone).first()
-        elif email:
+        if email and not user:
             user = self.session.query(User).filter(User.email == email).first()
-        else:
-            user = None
         return user
 
     def user_exists(self, data):
@@ -225,7 +224,6 @@ class UserService:
             organization = Organization(organization_name=data["organization_name"], inn=data["inn"])
             self.session.add(organization)
             self._safe_commit()
-            print(organization.id)
             user = User(
                 name=data.get("organization_name"),
                 email=data.get("email"),
