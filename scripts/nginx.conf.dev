@@ -9,33 +9,6 @@ http {
         listen 80;
         server_name localhost;
 
-        location /docs/ {
-            rewrite ^/docs/(.*) /$1 break;
-            proxy_pass http://server:${SERVER_PORT}/docs/;
-            proxy_set_header Host $host;
-            proxy_set_header X-Real-IP $remote_addr;
-            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-            proxy_set_header X-Forwarded-Proto $scheme;
-        }
-
-        location /api/openapi/ {
-            rewrite ^/api/openapi/(.*) /$1 break;
-            proxy_pass http://server:${SERVER_PORT}/openapi.json/;
-            proxy_set_header Host $host;
-            proxy_set_header X-Real-IP $remote_addr;
-            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-            proxy_set_header X-Forwarded-Proto $scheme;
-        }
-
-        location /api/ {
-            rewrite ^/api/openapi/(.*) /$1 break;
-            proxy_pass http://server:${SERVER_PORT}/;
-            proxy_set_header Host $host;
-            proxy_set_header X-Real-IP $remote_addr;
-            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-            proxy_set_header X-Forwarded-Proto $scheme;
-        }
-
         location / {
             proxy_pass http://web:${FRONTEND_PORT}/;
             proxy_set_header Host $host;
@@ -44,4 +17,4 @@ http {
             proxy_set_header X-Forwarded-Proto $scheme;
         }
     }
-}
+}   
