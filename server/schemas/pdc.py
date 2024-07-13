@@ -12,6 +12,9 @@ class ErrorResponse(BaseModel):
     detail: str = Field(..., example="Description of the error.")
 
 class PointORM(BaseModel):
+    locality: str = Field(..., example="Санкт-Петербург")
+    address: str = Field(..., example="Невский проспект 1")
+    phone: str = Field(None, pattern="^7\d{10}$", example="70000000000")
     lat: str = None
     lon: str = None
     index: int
