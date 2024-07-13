@@ -3,8 +3,10 @@ db.db
 .idea
 .vscode
 .DS_Store
-certificate.crt
-private.key
+backend.crt
+backend.key
+frontend.crt
+frontend.key
 node_modules
 package-lock.json
 .log
