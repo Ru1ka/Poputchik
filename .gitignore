@@ -7,6 +7,8 @@ backend.crt
 backend.key
 frontend.crt
 frontend.key
+pgadmin.crt
+pgadmin.key
 node_modules
 package-lock.json
 .log
