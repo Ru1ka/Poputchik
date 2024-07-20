@@ -50,3 +50,5 @@ class UpdateOrder(BaseModel):
     amount: int = None
     temperature_condition: bool = None
     status: str = None
+    loading_points: list[Point] = None
+    unloading_points: list[Point] = None

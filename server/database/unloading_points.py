@@ -21,3 +21,7 @@ class UnloadingPoint(SqlAlchemyBase):
     @property
     def coordinates(self) -> tuple:
         return (self.lon, self.lat)
+
+    @property
+    def coords(self) -> tuple:
+        return (self.lon, self.lat)

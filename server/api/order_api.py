@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 
 import schemas.order_pdc as order_pdc
-from api.dependencies import verify_jwt, verify_admin_jwt
+from api.dependencies import verify_jwt
 from service.admin import AdminService
 from service.order import OrderService
 from schemas.pdc import ErrorResponse
@@ -76,10 +76,11 @@ async def create_order(data: order_pdc.CreateOrder, user: User = Depends(verify_
         200: {"model": order_pdc.Order},
         400: {"description": "Не существующий заказ.", "model": ErrorResponse},
         401: {"description": "JWT expired or Wrong JWT.", "model": ErrorResponse},
+        404: {"description": "Заказ не найден.", "model": ErrorResponse},
     }
 )
-async def update_order(data: order_pdc.UpdateOrder, verification = Depends(verify_admin_jwt), service: OrderService = Depends()):
+async def update_order(data: order_pdc.UpdateOrder, user: User = Depends(verify_jwt), service: OrderService = Depends()):
     """
     Получение профиля
     """
-    return service.update_order(data)
+    return service.update_order_by_user(data, user)
