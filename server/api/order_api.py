@@ -69,7 +69,7 @@ async def create_order(data: order_pdc.CreateOrder, user: User = Depends(verify_
 
 
 @router.put(
-    "/update", 
+    "", 
     response_model=order_pdc.Order, 
     response_model_exclude_unset=True,
     responses={
