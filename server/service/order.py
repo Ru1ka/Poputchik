@@ -87,7 +87,7 @@ class OrderService:
         distance = self._get_distance(list(map(lambda x: x.get("coordinates"), route)))
         return {"distance": distance}
     
-    def create_order(self, user, data):
+    def create_order(self, data, user):
         data = data.dict()
         self._add_route_coords(data["loading_points"], ignore_ors_errors=True)
         self._add_route_coords(data["unloading_points"], ignore_ors_errors=True)
@@ -143,6 +143,16 @@ class OrderService:
     def _get_order(self, order_id: int) -> Order:
         order = self.session.query(Order).filter(Order.id == order_id).first()
         if not order:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Заказ не найден."
+            )
+        return order
+    
+    def get_order(self, user, data):
+        data = data.dict()
+        order = self._get_order(data["id"])
+        if order.customer_id != user.id:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Заказ не найден."
@@ -222,7 +232,7 @@ class OrderService:
         order = self._get_order(data["id"])
         return self._update_order(data, order)
     
-    def update_order_by_user(self, data, user):
+    def update_order_by_user(self, user, data):
         data = data.dict(exclude_unset=True)
         order = self._get_order(data["id"])
         if order.customer_id != user.id:

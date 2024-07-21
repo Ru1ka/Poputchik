@@ -40,6 +40,9 @@ class OrderCostReturn(BaseModel):
     cost: int
 
 
+class GetOrder(BaseModel):
+    id: int
+
 class UpdateOrder(BaseModel):
     id: int
 

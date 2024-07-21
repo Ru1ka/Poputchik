@@ -68,6 +68,24 @@ async def create_order(data: order_pdc.CreateOrder, user: User = Depends(verify_
     return service.create_order(user, data)
 
 
+@router.post(
+    "", 
+    response_model=order_pdc.Order, 
+    response_model_exclude_unset=True,
+    status_code=200,
+    responses={
+        200: {"model": order_pdc.Order},
+        401: {"description": "JWT expired or Wrong JWT.", "model": ErrorResponse},
+        404: {"description": "Такого юзера нет в БД, скорее всего ранее он был удален или несуществующий заказ.", "model": ErrorResponse},
+    }
+)
+async def get_order(data: order_pdc.GetOrder, user: User = Depends(verify_jwt), service: OrderService = Depends()):
+    """
+    Получение стоимости заказа
+    """
+    return service.get_order(user, data)
+
+
 @router.put(
     "", 
     response_model=order_pdc.Order, 
@@ -83,4 +101,4 @@ async def update_order(data: order_pdc.UpdateOrder, user: User = Depends(verify_
     """
     Получение профиля
     """
-    return service.update_order_by_user(data, user)
+    return service.update_order_by_user(user, data)
