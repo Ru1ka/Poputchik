@@ -30,6 +30,7 @@ class Order(BaseModel):
 
     cargo: str
     created_at: datetime
+    loading_time: datetime
     cost: int
     distance: int
     weight: int

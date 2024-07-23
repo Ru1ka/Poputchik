@@ -64,7 +64,14 @@ class OrderService:
                     detail=f'ORS error: {err.message}'
                 )
             return 0
-        return request['routes'][0]['summary']['distance']
+        try:
+            return request['routes'][0]['summary']['distance']
+        except Exception as err:
+            if ignore_ors_errors:
+                return 0
+            else:
+                raise err
+
     
     def _calc_cost(self, distance, data):
         return 0
@@ -87,7 +94,7 @@ class OrderService:
         distance = self._get_distance(list(map(lambda x: x.get("coordinates"), route)))
         return {"distance": distance}
     
-    def create_order(self, data, user):
+    def create_order(self, user, data):
         data = data.dict()
         self._add_route_coords(data["loading_points"], ignore_ors_errors=True)
         self._add_route_coords(data["unloading_points"], ignore_ors_errors=True)
@@ -101,6 +108,7 @@ class OrderService:
             cargo=data["cargo"],
             cost=cost,
             distance=distance,
+            loading_time=data["loading_time"],
             weight=data["weight"],
             amount=data["amount"],
             temperature_condition=data["temperature_condition"],
@@ -172,6 +180,8 @@ class OrderService:
             order.temperature_condition = data["temperature_condition"]
         if "status" in data:
             order.status = data["status"]
+        if "loading_time" in data:
+            order.loading_time = data["loading_time"]
         if "loading_points" in data:
             list(map(
                 lambda x: self.session.delete(x), 

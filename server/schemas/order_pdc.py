@@ -29,6 +29,7 @@ class OrdersList(BaseModel):
 
 class CreateOrder(BaseModel):
     cargo: str = Field(..., max_length=100)
+    loading_time: datetime
     loading_points: list[Point]
     unloading_points: list[Point]
     weight: float = Field(..., gt=0, example=10)
@@ -48,6 +49,7 @@ class UpdateOrder(BaseModel):
 
     cargo: str = None
     cost: int = None
+    loading_time: datetime
     distance: int = None
     weight: int = None
     amount: int = None

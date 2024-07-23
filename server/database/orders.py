@@ -12,6 +12,7 @@ class Order(SqlAlchemyBase):
     id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True)
     cargo = sqlalchemy.Column(sqlalchemy.String, nullable=False)
     created_at = sqlalchemy.Column(sqlalchemy.DateTime, default=datetime.datetime.utcnow)
+    loading_time = sqlalchemy.Column(sqlalchemy.DateTime, nullable=False)
     cost = sqlalchemy.Column(sqlalchemy.Integer, nullable=True)  # rubles
     distance = sqlalchemy.Column(sqlalchemy.Integer, nullable=True)  # meters
     weight = sqlalchemy.Column(sqlalchemy.Integer, nullable=False)
