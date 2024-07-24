@@ -17,7 +17,7 @@ import fetchGetUserProfile from "../../fetch_functions/fetchGetUserProfile";
 import { ProfileResponse } from "../../pages/ProfilePage/ProfilePage";
 
 const Header = () => {
-    const poputchik_email: string = "poputchik@poputchik.ru";
+    const poputchik_email: string = "support@putchik.ru";
     const poputchik_tg: string = "artemurav"
 
     const handleEMailClick = () => {
