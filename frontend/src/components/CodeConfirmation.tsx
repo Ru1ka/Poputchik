@@ -17,7 +17,7 @@ import { ORDERS_PAGE } from '../router/paths';
 function CodeConfirmation(props: AuthFormStepProps) {
     const numInputs: number = 6;
     const [otp, setOtp] = useState('');
-    const [counter, setCounter] = useState<number>(6);
+    const [counter, setCounter] = useState<number>(30);
 
     const handleOtpChange = (newOtp: string) => {
         setOtp(newOtp);
