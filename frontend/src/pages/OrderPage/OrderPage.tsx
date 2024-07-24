@@ -44,7 +44,7 @@ import container_styles from '../../UI/containers.module.css';
 import { ButtonThemes } from '../../UI/Button/ButtonTypes';
 import { InputThemes } from '../../UI/Input/InputTypes';
 
-import Order from '../../components/Orders/OrderModel'; // Импортируем типы и интерфейсы
+import Order from '../../components/Orders/OrderModel';
 import { AUTH_PAGE } from '../../router/paths';
 
 dayjs.extend(customParseFormat);
@@ -73,8 +73,10 @@ export default function OrderPage() {
   const [vatValue, setVatValue] = useState<string>('');
   const [isChecked, setIsChecked] = useState<boolean>(false);
   const [price, setPrice] = useState<number>(0);
-
   const [additionalBlocks, setAdditionalBlocks] = useState<AdditionalBlock[]>([]);
+
+  const [distanceTimer, setDistanceTimer] = useState<number | null>(null);
+
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -138,12 +140,22 @@ export default function OrderPage() {
     const distanceData = await fetchDistance();
     if (distanceData !== null) {
       const value = distanceData.distance / 1000;
-      console.log('Distance value in km:', value);
       setDistanceValue(value);
     } else {
-      console.log('Failed to calculate distance.');
+      setDistanceValue(0);
     }
   }, [fetchDistance]);
+
+  const handleCityChangeWithDelay = (setCityValue: React.Dispatch<React.SetStateAction<string>>, value: string) => {
+    setCityValue(value);
+    if (distanceTimer) {
+      clearTimeout(distanceTimer);
+    }
+    const timer = setTimeout(() => {
+      calculateDistanceValue();
+    }, 15000);
+    setDistanceTimer(timer);
+  };
 
   useEffect(() => {
     calculateDistanceValue();
@@ -175,7 +187,6 @@ export default function OrderPage() {
             onUnloadingCityValue, onUnloadingValue, onUnloadingPhoneValue,
             isChecked, distanceValue!, additionalLoadingPoints
           );
-          console.log('Данные о созданном заказе:', orderDetails);
           return orderDetails;
         } else {
           const id = location.state?.order?.id ?? 0;
@@ -187,8 +198,6 @@ export default function OrderPage() {
             onUnloadingCityValue, onUnloadingValue, onUnloadingPhoneValue,
             isChecked, statusValue, distanceValue!, additionalLoadingPoints
           );
-
-          console.log('Данные о заказе:', orderDetails);
           return orderDetails;
         }
       } catch (error) {
@@ -198,21 +207,18 @@ export default function OrderPage() {
     }
     return null;
   }, [
-    cargoValue, weightValue, amountValue, date, time,
+    cargoValue, weightValue, amountValue, date, price, time,
     onLoadingCityValue, onLoadingValue, onLoadingPhoneValue,
     onUnloadingCityValue, onUnloadingValue, onUnloadingPhoneValue, isChecked, selectedUnit, distanceValue, location.state, mode, additionalBlocks
   ]);
 
   const getISODateString = (date: string, time: string) => {
-    console.log('Полученные дата и время:', date, time);
     try {
       const dateTime = dayjs(`${date} ${time}`, 'DD.MM.YYYY HH:mm');
-      console.log('Форматированный DateTime:', dateTime);
       if (!dateTime.isValid()) {
         throw new Error('Invalid date or time format');
       }
       const isoString = dateTime.format('YYYY-MM-DDTHH:mm:ss');
-      console.log('ISO строка даты и времени:', isoString);
       return isoString;
     } catch (error) {
       console.error('Invalid date or time value:', error);
@@ -244,11 +250,11 @@ export default function OrderPage() {
   };
 
   const handleOnLoadingCityChange = (value: string) => {
-    setOnLoadingCityValue(value);
+    handleCityChangeWithDelay(setOnLoadingCityValue, value);
   };
 
   const handleUnloadingCityChange = (value: string) => {
-    setUnloadingCityValue(value);
+    handleCityChangeWithDelay(setUnloadingCityValue, value);
   };
 
   const handleVATChange = (value: string) => {
@@ -319,7 +325,6 @@ export default function OrderPage() {
     if (!isButtonDisabled) {
       const orderDetails = await fetchOrderDetailsCallback();
       if (orderDetails) {
-        console.log('Order successfully created:', orderDetails);
         navigate('/orders', { state: { newOrder: orderDetails } });
       }
     }
@@ -329,7 +334,6 @@ export default function OrderPage() {
     if (!isButtonDisabled) {
       const orderDetails = await fetchOrderDetailsCallback();
       if (orderDetails) {
-        console.log('Order successfully updated:', orderDetails);
         navigate('/orders', { state: { updatedOrder: orderDetails } });
       }
     }
