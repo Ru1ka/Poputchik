@@ -135,7 +135,7 @@ class UserService:
                         )
                     logging.warning(f"sms-api: '{response.message}'.")
                     raise HTTPException(
-                        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                        status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
                         detail=f"sms-api: '{response.message}'."
                     )
             else:
@@ -157,7 +157,7 @@ class UserService:
                     logging.error(f"Failed to send email: {err}")
                     # TODO: 500 -> 503
                     raise HTTPException(
-                        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                        status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
                         detail=f"Failed to send email, try sms."
                     )
             else:
@@ -300,7 +300,7 @@ class UserService:
                 )
             user.email = data["email"]
         if "phone" in data:
-            if not data["phone"] and not user.phone:
+            if not data["phone"] and not user.email:
                 raise HTTPException(
                     status_code=status.HTTP_409_CONFLICT,
                     detail="Нельзя удалить единственный контакт."

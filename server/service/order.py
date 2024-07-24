@@ -1,10 +1,12 @@
 from fastapi import Depends, status, HTTPException
+import requests
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 import openrouteservice
 from openrouteservice.geocode import pelias_search
 from openrouteservice.directions import directions
 from openrouteservice.exceptions import ApiError as ORSError
+from openrouteservice.exceptions import Timeout, _OverQueryLimit
 
 from log_config import logger as logging
 from settings import settings
@@ -12,9 +14,10 @@ from database.db_session import get_session
 from database.orders import Order
 from database.loading_points import LoadingPoint
 from database.unloading_points import UnloadingPoint
+from database.users import User
 
 class OrderService:
-    client = openrouteservice.Client(key=settings().ORS_API_KEY)
+    client = openrouteservice.Client(key=settings().ORS_API_KEY, timeout=4, retry_timeout=3)
 
     def __init__(self, session: Session = Depends(get_session)):
         self.session = session
@@ -50,6 +53,17 @@ class OrderService:
                         detail=err.message
                     )
                 return False
+            except _OverQueryLimit:
+                logging.error("Over query limit")
+                
+            except Timeout:
+                logging.error("ORS timeout.")
+                if not ignore_ors_errors:
+                    raise HTTPException(
+                        status_code=status.HTTP_408_REQUEST_TIMEOUT,
+                        detail="ORS timeout."
+                    )
+                return False
         return True
 
 
@@ -64,7 +78,16 @@ class OrderService:
                     detail=f'ORS error: {err.message}'
                 )
             return 0
+        except Timeout:
+            logging.error("ORS timeout.")
+            if not ignore_ors_errors:
+                raise HTTPException(
+                    status_code=status.HTTP_408_REQUEST_TIMEOUT,
+                    detail="ORS timeout."
+                )
         try:
+            if not request['routes'] or "distance" not in request['routes'][0]["summary"]:
+                return 0
             return request['routes'][0]['summary']['distance']
         except Exception as err:
             if ignore_ors_errors:
@@ -94,7 +117,7 @@ class OrderService:
         distance = self._get_distance(list(map(lambda x: x.get("coordinates"), route)))
         return {"distance": distance}
     
-    def create_order(self, user, data):
+    def create_order(self, user: User, data):
         data = data.dict()
         self._add_route_coords(data["loading_points"], ignore_ors_errors=True)
         self._add_route_coords(data["unloading_points"], ignore_ors_errors=True)
@@ -146,6 +169,24 @@ class OrderService:
             )
             self.session.add(new_point)
         self._safe_commit()
+
+        try:
+            body = {
+                "customer_name": user.name,
+                "readable_id": new_order.readable_id,
+                "customer_phone": user.phone,
+                "customer_email": user.email,
+                "cargo": new_order.cargo,
+                "created_at": new_order.created_at.strftime("%d-%m-%Y %H:%M:%S"),
+                "loading_time": new_order.loading_time.strftime("%d-%m-%Y %H:%M"),
+
+                "loading_points": [f'{i.locality}, {i.address}' for i in new_order.loading_points],
+                "unloading_points": [f'{i.locality}, {i.address}' for i in new_order.unloading_points]
+            }
+            requests.post("http://telegram_bot:8000/send_message/", json=body)
+        except Exception as err:
+            logging.error(err)
+
         return new_order
     
     def _get_order(self, order_id: int) -> Order:
