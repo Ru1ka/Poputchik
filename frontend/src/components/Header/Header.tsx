@@ -5,7 +5,6 @@ import logo from '../../assets/icons/Logo_full.svg';
 import Profile from '../../assets/icons/Profile.svg';
 import List_arrow from '../../assets/icons/List_arrow.svg';
 import Support from '../../assets/icons/Customer_support.svg';
-import Telegram from '../../assets/icons/Telegram_icon.svg';
 import Exit from '../../assets/icons/Exit.svg';
 import Burger from '../../assets/icons/Burger_menu.svg';
 
@@ -18,14 +17,9 @@ import { ProfileResponse } from "../../pages/ProfilePage/ProfilePage";
 
 const Header = () => {
     const poputchik_email: string = "support@putchik.ru";
-    const poputchik_tg: string = "artemurav"
 
     const handleEMailClick = () => {
         window.location.href = `mailto:${poputchik_email}`;
-    };
-
-    const handleTGClick = () => {
-        window.open(`https://t.me/${poputchik_tg}`, '_blank')
     };
 
     const handleGoToProfilePageClick = () => {
@@ -95,10 +89,6 @@ const Header = () => {
                             <img src={Support} />
                             <div>{poputchik_email}</div>
                         </h3>
-                        {/* <h3 className={styles.tooltipRow} onClick={handleTGClick}>
-                            <img src={Telegram} />
-                            {poputchik_tg}
-                        </h3> */}
                     </ReactTooltip>
                     <h3 className={styles.support} data-tooltip-id="get-support-tooltip">
                         Поддержка
@@ -158,10 +148,6 @@ const Header = () => {
                                 <img src={Support} />
                                 <div>{poputchik_email}</div>
                             </h3>
-                            {/* <h3 className={styles.littleRow} onClick={handleTGClick} style={{ cursor: 'pointer' }}>
-                                <img src={Telegram} />
-                                {poputchik_tg}
-                            </h3> */}
                         </div>
                     </div>
 
