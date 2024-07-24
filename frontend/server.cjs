@@ -2,7 +2,7 @@ const express = require("express");
 const path = require("path");
 
 const app = express();
-const PORT = process.env.REACT_APP_PORT || import.meta.env.VITE_FRONTEND_PORT || 5174;
+const PORT = process.env.REACT_APP_PORT || 5173;
 
 app.use("/", express.static(path.join(__dirname, "dist")));
 

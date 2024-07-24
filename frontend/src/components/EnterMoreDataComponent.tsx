@@ -81,7 +81,7 @@ function EnterPersonalDataComponent(props: CheckboxProps) {
                     onChange={() => { props.handleCheckboxClick(!props.formData.terms) }}
                 />
                 <div className={cn("hint", container_styles.concat_text_elements)} style={{}}>
-                    Согласен с <a href="https://www.google.com">правилами</a> пользования
+                    Согласен с <a>правилами</a> пользования
                 </div>
             </div>
             <Button
