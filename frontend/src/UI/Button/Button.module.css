@@ -1,20 +1,33 @@
+@import url(../../theme.css);
+
 .button {
     cursor: pointer;
     outline: none;
     border: none;
     width: 100%;
     margin: 0px;
-    border-radius: 10px;
+    border-radius: var(--border-radius-m);
     font: inherit;
-    font-size: 15px;
+    font-size: var(--font-size-main-and-input-text);
     font-weight: 600;
-    line-height: 15px;
+    line-height: var(--font-size-main-and-input-text);
     transition: all 0.5s;
+}
+
+.button_width300px{
+    width: 300px !important; 
 }
 
 .red {
     background: none;
-    color: #D80034;
+    color: var(--active-red-color);
+    width: fit-content;
+    align-self: center;
+}
+
+.black {
+    background: none;
+    color: black;
     width: fit-content;
     align-self: center;
 }
@@ -28,16 +41,16 @@
 }
 
 .button:disabled {
-    background-color: #B8002C;
+    background-color: var(--inactive-red-color);
     color: rgba(255, 255, 255, 0.75);
     cursor: default;
 }
 
 .red_filled {
-    background-color: #D80034;
+    background-color: var(--active-red-color);
     color: white;
     font-weight: 500;
-    padding: 15px;
+    padding: var(--spacing-input);
 }
 
 .go_back_arrow {
@@ -69,46 +82,3 @@
     height: fit-content;
     padding: 5px;
 }
-
-/*  */
-/* .button {
-    outline: none;
-    padding: 1px 14px;
-    font-family: SFProDisplay;
-    font-size: 10;
-    font-weight: 500;
-    border-radius: .5rem;
-    border: none;
-    white-space: nowrap;
-}
-
-.blue {
-    color: #007FFF;
-    background: none;
-    border: 2px solid #007FFF;
-    transition: all .15s;
-}
-
-.blue:hover {
-    background: #007FFF;
-    color: white;
-    border: 2px solid #007FFF;
-}
-
-.blue_fill {
-    background: #007FFF;
-    color: white;
-    border: 2px solid #007FFF;
-    transition: all .15s;
-}
-
-.blue_fill:hover:not(:disabled) {
-    color: #f9f9f9;
-    background: #0079F9;
-    border: 2px solid #007FFF;
-}
-
-button:disabled {
-    opacity: .5;
-    cursor: not-allowed;
-} */

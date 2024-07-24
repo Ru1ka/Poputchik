@@ -14,24 +14,24 @@ function RegistrationPage() {
     const [formData, setFormData] = useState<IAuthFormData>({
         email: '',
         phone: '',
-        person: null,
-        companyName: '',
-        companyINN: '',
+        is_organization_account: true,
+        organization: '',
+        inn: '',
         fullName: '',
         terms: false,
         userAlreadyExists: false,
     });
 
-    const handleInputChange = (name: string, value: string) => {
+    const handleInputChange = (name: string, value: any) => {
         setFormData({ ...formData, [name]: value });
-        console.log(name + ': ' + value);
+        // console.log(name + ': ' + value);
     };
 
     const handleCheck = (newValue: boolean) => {
         setFormData({ ...formData, terms: newValue });
     }
 
-    const handleNextStep = (stepIncrement = 1) => {
+    const handleChangeStep = (stepIncrement = 1) => {
         setLogInStage(logInStage + stepIncrement);
         console.log(logInStage + stepIncrement);
     };
@@ -52,12 +52,12 @@ function RegistrationPage() {
 
     return (
         <div className={styles.regPage}>
-            <CenteredFrame showBackArrow={logInStage > 0} clickBackArrowHandler={handlePrevStep}>
+            <CenteredFrame showBackArrow={logInStage > 0} clickBackArrowHandler={() => { if (formData.userAlreadyExists && logInStage === 3) { handleChangeStep(-3) } else { handlePrevStep() } }}>
                 <LogInStageComponent
                     logInStage={logInStage}
                     typeOfLogin={typeOfInput}
                     changeTypeOfInput={changeTypeOfInput}
-                    handleNextStep={handleNextStep}
+                    handleNextStep={handleChangeStep}
                     formData={formData}
                     handleInputChange={handleInputChange}
                     handleCheck={handleCheck}

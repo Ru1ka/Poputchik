@@ -1,0 +1,49 @@
+@import url(./theme.css);
+
+.icon_in_redrect, .icon_calendar_in_history, .order_confirmed_icon, .order_in_path_icon, .order_finished_icon{
+    height: 15px;
+}
+
+.icon_in_redrect{
+    filter: var(--white-filter);
+    width: 15px;
+}
+
+.icon_calendar_in_history{
+    width: 15px;
+}
+
+.title_icon, .add_order_icon, .preview_order_icon{
+    width: 20px;
+    height: 20px;
+}
+
+.order_confirmed_icon{
+    width: 19px;
+}
+
+.order_in_path_icon{
+    width: 23px;
+}
+
+.order_finished_icon{
+    width: 12px;
+}
+
+.input_icon{
+    width: 12px;
+    height: 12px;
+}
+
+.clear_icon{
+    width: 18px;
+    height: 18px;
+}
+
+.add_order_icon{
+    filter: var(--active-red-filter);
+}
+
+.preview_order_icon{
+    filter: var(--inactive-filter);
+}

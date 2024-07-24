@@ -46,14 +46,14 @@ function GoToRegistration(props: GoToRegistrationProps) {
                     buttonTheme={ButtonThemes.RED_FILLED}
                     onClick={() => {
                         props.handleNextStep();
-                        props.handleInputChange('person', 'natural');
+                        props.handleInputChange("is_organization_account", false);
                     }} />
                 <Button
                     children={"Юридическое лицо"}
                     buttonTheme={ButtonThemes.RED_FILLED}
                     onClick={() => {
                         props.handleNextStep();
-                        props.handleInputChange('person', 'legal');
+                        props.handleInputChange("is_organization_account", true);
                     }} />
             </div>
         </div>

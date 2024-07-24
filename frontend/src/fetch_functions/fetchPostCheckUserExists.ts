@@ -1,8 +1,10 @@
+import { SERVER_ROUTE } from "../constants";
+// SERVER_ROUTE + 
 import { TypesOfLogin } from "../components/LogInInputTypes";
 
 async function fetchPostCheckUserExists(typeOfLogin: TypesOfLogin, phone: string, email: string) {
     try {
-        const response = await fetch(import.meta.env.VITE_API_BASE_URL + '/api/auth/user_exists', {
+        const response = await fetch(SERVER_ROUTE + '/api/auth/user_exists', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

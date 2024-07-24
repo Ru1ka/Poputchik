@@ -1,4 +1,36 @@
-* {
-    --red: #d80034;
-    --red-dark: #d0002a;
+:root{
+    --active-red-color: #d80034;
+    --inactive-red-color: #b8002c;
+    --inactive-button-text-color: #dc8096;
+    --inactive-and-outline-color: #d6d6d6;
+    --inactive-text-color: #898989;
+    --link-color: #2d91c9;
+
+    --white-filter: invert(100%);
+    --active-red-filter: invert(20%) sepia(95%) saturate(6770%) hue-rotate(338deg) brightness(81%) contrast(113%);
+    --inactive-filter: invert(97%) sepia(0%) saturate(20%) hue-rotate(232deg) brightness(94%) contrast(82%);
+
+    --border-radius-s: .35rem; /* 4px */ 
+    --border-radius-m: .83rem; /* 10px */
+    --border-radius-l: 2.5rem; /* 30px */
+
+    --frame-outline: .08rem; /* 1px */
+    --border-stroke: .17rem; /* 2px */
+
+    --spacing-s: .42rem; /* 5px */
+    --spacing-m: .83rem; /* 10px */
+    --spacing-input: 1.25rem; /* 15px */
+    --spacing-l: 1.67rem; /* 20px */
+    --spacing-xl: 2.5rem; /* 30px */
+    --spacing-2xl: 3.33rem; /* 40px */
+    --spacing-3xl: 4.16rem; /* 50px */
+    --spacing-4xl: 6.66rem; /* 80px */
+    --spacing-5xl: 8.33rem; /* 100px */
+
+    --font-size-additional-text: 1rem; /* 12px */
+    --font-size-main-and-input-text: 1.25rem; /* 15px */
+    --font-size-title-naming: 1.67rem;  /* 20px */
+    --font-size-card-text: 2.5rem; /* 30px */
+    --font-size-why-us: 3.75rem; /* 45px */
+    --font-size-card-title-text: 5rem; /* 60px */
 }

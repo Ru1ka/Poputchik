@@ -7,11 +7,12 @@ import container_styles from '../UI/containers.module.css'
 import Button from '../UI/Button/Button';
 import button_styles from '../UI/Button/Button.module.css'
 import { ButtonThemes } from '../UI/Button/ButtonTypes';
-import { Tooltip as ReactTooltip } from "react-tooltip";
 import { AuthFormStepProps } from './Forms/AuthForm/AuthForm';
 import { formatPhoneNumber } from './GoToRegistration';
 import fetchPostSendCode from '../fetch_functions/fetchPostSendCode';
-import { fetchPostVerifyOtpRegister, fetchPostVerifyOtpSignIn } from '../fetch_functions/fetchPostVerifyOtp';
+import { fetchPostVerifyOtpRegisterAsOrg, fetchPostVerifyOtpRegisterAsPhysical, fetchPostVerifyOtpSignIn } from '../fetch_functions/fetchPostVerifyOtp';
+import { useNavigate } from 'react-router-dom';
+import { ORDERS_PAGE } from '../router/paths';
 
 function CodeConfirmation(props: AuthFormStepProps) {
     const numInputs: number = 6;
@@ -25,23 +26,47 @@ function CodeConfirmation(props: AuthFormStepProps) {
         }
     }
 
+    const navigate = useNavigate();
+
     const validateOtp = (otp: string) => {
+
         console.log(otp);
         if (props.formData.userAlreadyExists) {
             // /api/auth/sign_in/verify_otp
             fetchPostVerifyOtpSignIn(props.typeOfLogin, props.formData.phone, props.formData.email, otp)
                 .then((data: any) => {
-                    props.handleNextStep();
                     localStorage.setItem('token', data.token);
-                    console.log(data.token);
                 })
-        } else {
-            // /api/auth/register/verify_otp
-            fetchPostVerifyOtpRegister(props.typeOfLogin, props.formData, otp)
+                .then(() => {
+                    navigate(ORDERS_PAGE, { replace: false });
+                })
+        } else if (props.formData.is_organization_account) {
+            // /api/auth/register/as_organization/verify_otp
+            fetchPostVerifyOtpRegisterAsOrg(props.typeOfLogin, props.formData, otp)
                 .then((data: any) => {
-                    props.handleNextStep();
                     localStorage.setItem('token', data.token);
-                    console.log(data.token);
+                    if (props.formData.is_organization_account) {
+                        localStorage.setItem('username', props.formData.organization);
+                    } else {
+                        localStorage.setItem('username', props.formData.fullName);
+                    }
+                })
+                .then(() => {
+                    navigate(ORDERS_PAGE, { replace: false });
+                })
+        } else if (!props.formData.is_organization_account) {
+            // /api/auth/register/as_physical/verify_otp
+            fetchPostVerifyOtpRegisterAsPhysical(props.typeOfLogin, props.formData, otp)
+                .then((data: any) => {
+                    localStorage.setItem('token', data.token);
+                    if (props.formData.is_organization_account) {
+                        localStorage.setItem('username', props.formData.organization);
+                    } else {
+                        localStorage.setItem('username', props.formData.fullName);
+                    }
+                })
+                .then(() => {
+                    navigate(ORDERS_PAGE, { replace: false });
                 })
         }
     }
@@ -51,8 +76,8 @@ function CodeConfirmation(props: AuthFormStepProps) {
     }, [counter]);
 
     useEffect(() => {
-        fetchPostSendCode(props.typeOfLogin, props.formData.phone, props.formData.email)
-    }, [])
+        fetchPostSendCode(props.typeOfLogin, props.formData.phone, props.formData.email);
+    }, []);
 
 
     return (
@@ -62,13 +87,6 @@ function CodeConfirmation(props: AuthFormStepProps) {
                     <h2 style={{ width: "min-content" }}>
                         Введите код подтверждения
                     </h2>
-                    <Button buttonTheme={ButtonThemes.SQUARE} className={button_styles.red_filled} data-tooltip-id="my-tooltip-1">?</Button>
-                    <ReactTooltip
-                        id="my-tooltip-1"
-                        place="right"
-                        content="Полезное пояснение"
-                        style={{ fontSize: '12px', padding: '4px 10px' }}
-                    />
                 </div>
                 <div className='hint'>
                     {"Мы отправили его на "
@@ -82,7 +100,7 @@ function CodeConfirmation(props: AuthFormStepProps) {
                 numInputs={numInputs}
                 inputType={'tel'}
                 inputStyle={cn(input_styles.input, input_styles.square)}
-                containerStyle={container_styles.gap_6}
+                containerStyle={container_styles.gap_5}
                 shouldAutoFocus={true}
                 renderInput={(props) => <input {...props} style={{ textAlign: 'center' }} />}
             // renderInput={(props, i) => <input {...props} autoComplete={i == 0 ? "one-time-code" : ""} />}

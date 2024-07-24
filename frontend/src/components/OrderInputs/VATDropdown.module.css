@@ -1,0 +1,54 @@
+@import url(../../theme.css);
+
+.vat_li, .vat_ul{
+    width: 123px;
+    height: 45px;
+    position: relative;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+button{
+    background: #fff;
+}
+
+.vat_li{
+    padding-left: var(--spacing-input);
+    background: var(--inactive-and-outline-color);
+}
+
+.vat_li:hover{
+    background: #fff;
+    transition: .25s;
+}
+
+p, li{
+    font-family: Montserrat, sans-serif;
+    font-size: var(--font-size-main-and-input-text);
+    font-weight: 500;
+    text-align: start;
+}
+li{
+    list-style-type: none;
+}
+
+.container{
+    display: flex;
+    align-items: center;
+}
+
+.container > img{
+    margin-right: var(--spacing-m);
+}
+
+.vat_dropdown {
+    position: absolute;
+    width: 123px;
+    z-index: 1000;
+    background-color: white;
+}
+
+.vat_type_input{
+    position: relative;
+}

@@ -1,14 +1,39 @@
+@import url(../theme.css);
+
+.centeredFrameWrapper {
+    /* display: flex;
+    width: 100%; */
+}
+
 .centeredFrame {
-    outline: 1px solid #D6D6D6;
-    border-radius: 30px;
+    outline: var(--frame-outline) solid var(--inactive-and-outline-color);
+    border-radius: var(--border-radius-l);
     display: flex;
     flex-direction: column;
-    padding: 50px;
-    row-gap: 40px;
+    padding: var(--spacing-3xl);
+    row-gap: var(--spacing-2xl);
     box-shadow: 0 1.25px 5px rgba(0, 0, 0, 0.25);
-    transition: all .5;
+    transition: all .5s;
+}
+
+@media (max-width: 768px) {
+    .centeredFrame {
+        outline: none;
+        box-shadow: none;
+        padding: var(--spacing-3xl) var(--spacing-l);
+        row-gap: var(--spacing-2xl);
+    }
 }
 
 .logo {
     width: 300px;
+}
+
+@media (max-width: 768px) {
+    .logo {
+        max-width: 100%;
+        width: 240px;
+        margin-right: 60px;
+        height: 40px;
+    }
 }

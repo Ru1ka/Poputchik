@@ -1,0 +1,188 @@
+.centeredFrame {
+    outline: 1px solid #D6D6D6;
+    border-radius: var(--border-radius-l);
+    display: flex;
+    flex-direction: column;
+    padding: 50px;
+    margin: 20px;
+    row-gap: var(--spacing-2xl);
+    box-shadow: 0 1.25px 5px rgba(0, 0, 0, 0.25);
+    transition: all .5s;
+    margin-bottom: 100px;
+}
+
+.orderListContainer {
+    display: flex;
+    flex-direction: column;
+    row-gap: var(--spacing-l);
+}
+
+@media (max-width: 768px) {
+    .centeredFrame {
+        outline: none;
+        box-shadow: none;
+        padding: 0px;
+        row-gap: var(--spacing-l);
+    }
+}
+
+.centeredFrameSmall {
+    outline: 1px solid #D6D6D6;
+    border-radius: var(--border-radius-l);
+    display: flex;
+    flex-direction: column;
+    padding: 20px 30px;
+    row-gap: var(--spacing-2xl);
+    box-shadow: 0 1.25px 5px rgba(0, 0, 0, 0.25);
+}
+
+@media (max-width: 768px) {
+    .centeredFrameSmall {
+        padding: 20px 20px;
+    }
+}
+
+.cardHeaderContainer {
+    display: flex;
+    flex-direction: row;
+    gap: var(--spacing-m) var(--spacing-l);
+}
+
+@media (max-width: 768px) {
+    .cardHeaderContainer {
+        flex-direction: column-reverse;
+    }
+}
+
+.orderStatusContainer {
+    display: flex;
+    flex-direction: row;
+    gap: var(--spacing-s);
+    align-items: center;
+    order: 2;
+}
+
+.orderStatusContainer .img {
+    height: 15px;
+}
+
+.orderStatusContainer .line {
+    height: 2px;
+}
+
+.img.inactive,
+.line.inactive {
+    filter: var(--inactive-filter);
+}
+
+.img.active,
+.line.active {
+    filter: var(--active-red-filter);
+}
+
+.pathContainer {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    max-width: 500px;
+    gap: var(--spacing-m);
+}
+
+@media (max-width: 768px) {
+    .pathContainer {
+        flex-direction: column;
+    }
+}
+
+.infoAndPriceContainer {
+    display: flex;
+    flex-direction: row;
+    gap: var(--spacing-l);
+    justify-content: space-between;
+}
+
+@media (max-width: 768px) {
+    .infoAndPriceContainer {
+        flex-direction: column;
+    }
+}
+
+.priceAndRepeatContainer {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+@media (max-width: 768px) {
+    .priceAndRepeatContainer {
+        flex-direction: row;
+    }
+}
+
+
+.redText {
+    color: var(--active-red-color);
+    font-weight: 600;
+    font-size: var(--font-size-main-and-input-text);
+}
+
+.redContainer {
+    background-color: var(--active-red-color);
+    font-weight: 500;
+    font-size: var(--font-size-main-and-input-text);
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 8px 10px;
+    color: white;
+    border-radius: var(--border-radius-m);
+    gap: 5px;
+}
+
+.redContainer.inactive {
+    background-color: #D6D6D6;
+}
+
+.calendarImage {
+    height: 15px;
+    width: 15px;
+    margin-right: 5px;
+}
+
+.basicIcon {
+    height: 20px;
+    width: 20px;
+}
+
+.redContainer .basicIcon {
+    filter: var(--white-filter);
+}
+
+.arrowImage {
+    width: 30px;
+    height: auto;
+}
+
+@media (max-width: 768px) {
+    .arrowImage {
+        rotate: 90deg;
+        min-height: 20px;
+        margin-left: 20px;
+    }
+}
+
+.text {
+    font-size: var(--font-size-main-and-input-text);
+    line-height: 17px;
+    margin: 0px;
+    font-weight: 500;
+    display: flex;
+}
+
+.date {
+    white-space: nowrap;
+}
+
+.price {
+    white-space: nowrap;
+}
