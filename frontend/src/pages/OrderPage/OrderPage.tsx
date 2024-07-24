@@ -17,6 +17,8 @@ import Button from '../../UI/Button/Button';
 import Input from '../../UI/Input/Input';
 import Header from '../../components/Header/Header';
 
+import useDebounce from '../../hooks/useDebounce';
+
 import fetchGetDistance from '../../fetch_functions/fetchGetDistance';
 import fetchCreateOrder from '../../fetch_functions/fetchCreateOrder';
 import fetchUpdateOrder from '../../fetch_functions/fetchUpdateOrder';
@@ -47,6 +49,7 @@ import { InputThemes } from '../../UI/Input/InputTypes';
 import Order from '../../components/Orders/OrderModel';
 import { AUTH_PAGE } from '../../router/paths';
 
+
 dayjs.extend(customParseFormat);
 
 type AdditionalBlock = {
@@ -74,8 +77,6 @@ export default function OrderPage() {
   const [isChecked, setIsChecked] = useState<boolean>(false);
   const [price, setPrice] = useState<number>(0);
   const [additionalBlocks, setAdditionalBlocks] = useState<AdditionalBlock[]>([]);
-
-  const [distanceTimer, setDistanceTimer] = useState<number | null>(null);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -129,7 +130,7 @@ export default function OrderPage() {
         console.log('Distance data:', distanceData);
         return distanceData;
       } catch (error) {
-        console.error('Error calculating distance:', error);
+        console.error('Ошибка при расчете расстояния:', error);
         return null;
       }
     }
@@ -146,20 +147,14 @@ export default function OrderPage() {
     }
   }, [fetchDistance]);
 
-  const handleCityChangeWithDelay = (setCityValue: React.Dispatch<React.SetStateAction<string>>, value: string) => {
-    setCityValue(value);
-    if (distanceTimer) {
-      clearTimeout(distanceTimer);
-    }
-    const timer = setTimeout(() => {
-      calculateDistanceValue();
-    }, 15000);
-    setDistanceTimer(timer);
-  };
+  const debouncedOnLoadingCityValue = useDebounce(onLoadingCityValue, 1500);
+  const debouncedOnLoadingValue = useDebounce(onLoadingValue, 1500);
+  const debouncedOnUnloadingCityValue = useDebounce(onUnloadingCityValue, 1500);
+  const debouncedOnUnloadingValue = useDebounce(onUnloadingValue, 1500);
 
   useEffect(() => {
     calculateDistanceValue();
-  }, [calculateDistanceValue]);
+  }, [calculateDistanceValue, debouncedOnLoadingCityValue, debouncedOnLoadingValue, debouncedOnUnloadingCityValue, debouncedOnUnloadingValue]);
 
   useEffect(() => {
     if (localStorage.getItem('token') !== '') {
@@ -250,11 +245,11 @@ export default function OrderPage() {
   };
 
   const handleOnLoadingCityChange = (value: string) => {
-    handleCityChangeWithDelay(setOnLoadingCityValue, value);
+    setOnLoadingCityValue(value);
   };
 
   const handleUnloadingCityChange = (value: string) => {
-    handleCityChangeWithDelay(setUnloadingCityValue, value);
+    setUnloadingCityValue(value);
   };
 
   const handleVATChange = (value: string) => {
