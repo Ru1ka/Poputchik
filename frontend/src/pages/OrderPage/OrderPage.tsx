@@ -147,10 +147,10 @@ export default function OrderPage() {
     }
   }, [fetchDistance]);
 
-  const debouncedOnLoadingCityValue = useDebounce(onLoadingCityValue, 1500);
-  const debouncedOnLoadingValue = useDebounce(onLoadingValue, 1500);
-  const debouncedOnUnloadingCityValue = useDebounce(onUnloadingCityValue, 1500);
-  const debouncedOnUnloadingValue = useDebounce(onUnloadingValue, 1500);
+  const debouncedOnLoadingCityValue = useDebounce(onLoadingCityValue, 5000);
+  const debouncedOnLoadingValue = useDebounce(onLoadingValue, 5000);
+  const debouncedOnUnloadingCityValue = useDebounce(onUnloadingCityValue, 5000);
+  const debouncedOnUnloadingValue = useDebounce(onUnloadingValue, 5000);
 
   useEffect(() => {
     calculateDistanceValue();
