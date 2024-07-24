@@ -1,8 +1,8 @@
-import backArrow from '/back_arrow.svg'
+import backArrow from '../assets/icons/back_arrow.svg'
 import styles from './CenteredFrame.module.css'
 import Button from '../UI/Button/Button'
 import { ButtonThemes } from '../UI/Button/ButtonTypes'
-import poputchikLogo from '/Logo_full.svg'
+import poputchikLogo from '../assets/icons/Logo_full.svg'
 
 
 interface CenteredFrameProps {
@@ -13,7 +13,7 @@ interface CenteredFrameProps {
 
 function CenteredFrame(props: CenteredFrameProps) {
     return (
-        <div >
+        <div className={styles.centeredFrameWrapper}>
             {props.showBackArrow &&
                 <Button buttonTheme={ButtonThemes.GO_BACK_ARROW} onClick={props.clickBackArrowHandler}>
                     <img src={backArrow} />

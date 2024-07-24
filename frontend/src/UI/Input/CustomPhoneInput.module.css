@@ -1,0 +1,4 @@
+.phone_input:focus {
+    border: var(--border-stroke) solid var(--active-red-color) !important;
+    color: black !important;
+}

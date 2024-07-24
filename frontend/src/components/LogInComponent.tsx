@@ -1,15 +1,12 @@
 import cn from "classnames";
-import PhoneInput from 'react-phone-input-2'
-import 'react-phone-input-2/lib/style.css'
 import Input from '../UI/Input/Input'
 import { InputThemes } from '../UI/Input/InputTypes'
-import styles from './LogInComponent.module.css'
 import container_styles from '../UI/containers.module.css'
 import Button from '../UI/Button/Button'
 import { ButtonThemes } from '../UI/Button/ButtonTypes'
-import { buttonStyle, containerStyle, inputStyle } from './PhoneInputStyling'
 import { AuthFormStepProps } from './Forms/AuthForm/AuthForm'
 import fetchPostCheckUserExists from "../fetch_functions/fetchPostCheckUserExists";
+import CustomPhoneInput from "../UI/Input/CustomPhoneInput";
 
 export interface LogInComponentProps extends AuthFormStepProps {
     changeTypeOfInput: () => void;
@@ -32,26 +29,11 @@ function LogInComponent(props: LogInComponentProps) {
             </div>
 
             {props.typeOfLogin == "phone" ?
-                <PhoneInput
-                    // className={styles.phone_input}
-                    
-                    inputClass={styles.phone_input}
-                    country={'ru'}
-                    onlyCountries={['ru']}
-                    disableDropdown
-                    disableSearchIcon={true}
-                    countryCodeEditable={false}
-                    value={props.formData.phone}
-                    placeholder={"+7 (999) 999-99-99"}
+                <CustomPhoneInput
+                    phone={props.formData.phone}
+                    // onChange={(phone: string) => { props.handleInputChange('phone', phone) }}
                     onChange={(phone: string) => { props.handleInputChange('phone', phone) }}
-                    containerStyle={containerStyle}
-                    buttonStyle={buttonStyle}
-                    inputStyle={inputStyle}
-                    inputProps={{
-                        name: 'phone',
-                        required: true,
-                        autoFocus: true
-                    }} />
+                    autoFocus />
                 : <Input
                     inputTheme={InputThemes.RED}
                     autoFocus={true}
@@ -73,6 +55,7 @@ function LogInComponent(props: LogInComponentProps) {
                             if (data.user_exists) {
                                 props.setUserAlreadyExists(true);
                                 props.handleNextStep(3);
+                                console.log(data);
                             } else {
                                 props.setUserAlreadyExists(false);
                                 props.handleNextStep();

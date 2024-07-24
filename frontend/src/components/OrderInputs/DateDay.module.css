@@ -1,0 +1,10 @@
+@import url(../../theme.css);
+
+.container{
+    display: flex;
+    align-items: center;
+}
+
+.container > img{
+    margin-right: var(--spacing-m);
+}

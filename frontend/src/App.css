@@ -1,19 +1,29 @@
+@import url(./theme.css);
+
 h2 {
   margin: 0px;
-  font-size: 20px;
+  font-size: var(--font-size-title-naming);
   font-weight: 600;
   line-height: 22px;
 }
 
-.hint {
-  color: #898989;
+h3 {
   margin: 0px;
-  font-size: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 17px;
+  color: #000;
+}
+
+.hint {
+  color: var(--inactive-text-color);
+  margin: 0px;
+  font-size: var(--font-size-additional-text);
   font-weight: 500;
-  line-height: 14px;
+  line-height: 15px;
 }
 
 a {
-  color: #2D91C9;
+  color: var(--link-color);
   text-decoration: none;
 }

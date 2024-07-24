@@ -1,0 +1,43 @@
+@import url(../../theme.css);
+
+.weight_li, .weight_ul{
+    width: 79px;
+    height: 45px;
+    position: relative;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+button{
+    background: #fff;
+}
+.weight_li{
+    padding-left: var(--spacing-input);
+    background: var(--inactive-and-outline-color);
+}
+
+.weight_li:hover{
+    background: #fff;
+    transition: .25s;
+}
+
+p, li{
+    font-family: Montserrat, sans-serif;
+    font-size: var(--font-size-main-and-input-text);
+    font-weight: 500;
+}
+li{
+    list-style-type: none;
+}
+
+.weight_dropdown {
+    position: absolute;
+    width: 79px;
+    z-index: 1000;
+    background-color: white;
+}
+
+.weight_type_input{
+    position: relative;
+}
