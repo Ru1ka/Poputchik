@@ -17,7 +17,7 @@ import fetchGetUserProfile from "../../fetch_functions/fetchGetUserProfile";
 import { ProfileResponse } from "../../pages/ProfilePage/ProfilePage";
 
 const Header = () => {
-    const poputchik_email: string = "poputchik@poputchik.ru";
+    const poputchik_email: string = "support@putchik.ru";
     const poputchik_tg: string = "artemurav"
 
     const handleEMailClick = () => {
@@ -95,10 +95,10 @@ const Header = () => {
                             <img src={Support} />
                             <div>{poputchik_email}</div>
                         </h3>
-                        <h3 className={styles.tooltipRow} onClick={handleTGClick}>
+                        {/* <h3 className={styles.tooltipRow} onClick={handleTGClick}>
                             <img src={Telegram} />
-                            @poputchik
-                        </h3>
+                            {poputchik_tg}
+                        </h3> */}
                     </ReactTooltip>
                     <h3 className={styles.support} data-tooltip-id="get-support-tooltip">
                         Поддержка
@@ -158,10 +158,10 @@ const Header = () => {
                                 <img src={Support} />
                                 <div>{poputchik_email}</div>
                             </h3>
-                            <h3 className={styles.littleRow} onClick={handleTGClick} style={{ cursor: 'pointer' }}>
+                            {/* <h3 className={styles.littleRow} onClick={handleTGClick} style={{ cursor: 'pointer' }}>
                                 <img src={Telegram} />
-                                @poputchik
-                            </h3>
+                                {poputchik_tg}
+                            </h3> */}
                         </div>
                     </div>
 
