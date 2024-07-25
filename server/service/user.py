@@ -5,7 +5,7 @@ from log_config import logger as logging
 import jwt
 import pyotp
 import datetime
-from smsaero import SmsAero
+from smsaero import SmsAero, SmsAeroException
 import smtplib
 from email.utils import formataddr
 from email.header import Header
@@ -21,6 +21,9 @@ from settings import settings
 
 class UserService:
     smsaero = SmsAero(settings().SMSAERO_EMAIL, settings().SMSAERO_API_KEY)
+    smtp_server = \
+        smtplib.SMTP_SSL(settings().SMTP_SERVER, settings().SMTP_PORT)
+    smtp_server.login(settings().SMTP_USER, settings().SMTP_PASSWORD)
 
     def __init__(self, session: Session = Depends(get_session)):
         self.session = session
@@ -99,7 +102,7 @@ class UserService:
         if "phone" in data:
             if settings().SMSAERO_ENABLE:
                 try:
-                    response = self.smsaero.send(data["phone"], f"Ваш код для putchik.ru: {otp}")
+                    response = self.smsaero.send_sms(int(data["phone"]), f"Ваш код для putchik.ru: {otp}")
                     # Обработка ошибок sms-aero
                     if not response:
                         logging.warning("sms-aero is offline")
@@ -107,36 +110,17 @@ class UserService:
                             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
                             detail="Sms service is offline, try email."
                         )
-                except:
-                    logging.warning("sms-aero is offline")
+                except SmsAeroException as err:
+                    logging.warning(f"sms-aero error: {err}")
                     raise HTTPException(
                         status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
                         detail="Sms service is offline, try email."
                     )
-                if not response["success"]:
-                    # str in response["message"], тк доки "API 2.0 SMS Aero" не до конца совпдают с реальностью
-                    # Это перестраховка.
-                    if "Not enough money" in response["message"]:
-                        logging.error("There are not enough funds in the account to send an SMS code.")
-                        raise HTTPException(
-                                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-                                detail="Try email."
-                            )
-                    elif "Invalid ip-address" in response["message"]:
-                        logging.error("No access to the sms-api from the current server ip.")
-                        raise HTTPException(
-                            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-                            detail="Try email."
-                        )
-                    elif "Validation error" in response["message"]:
-                        raise HTTPException(
-                            status_code=status.HTTP_400_BAD_REQUEST,
-                            detail="Wrong phone."
-                        )
-                    logging.warning(f"sms-api: '{response.message}'.")
+                except Exception as err:
+                    logging.info(f"sms-aero error: {err}")
                     raise HTTPException(
-                        status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-                        detail=f"sms-api: '{response.message}'."
+                        status_code=status.HTTP_400_BAD_REQUEST,
+                        detail=f"Sms service error: {err}"
                     )
             else:
                 logging.info(f"SMSAERO_ENABLE is False; Ваш код для putchik.ru: {otp}")
@@ -148,11 +132,8 @@ class UserService:
                     msg['To'] = totp_contact
                     msg['Subject'] = f"Код авторизации putchik.ru - {otp}"
                     msg.attach(MIMEText(f"Код авторизации putchik.ru - {otp}", 'plain'))
-                    server = smtplib.SMTP_SSL(settings().SMTP_SERVER, settings().SMTP_PORT)
-                    server.login(settings().SMTP_USER, settings().SMTP_PASSWORD)
                     text = msg.as_string()
-                    server.sendmail(settings().SMTP_USER, totp_contact, text)
-                    server.quit()
+                    self.smtp_server.sendmail(settings().SMTP_USER, totp_contact, text)
                 except Exception as err:
                     logging.error(f"Failed to send email: {err}")
                     # TODO: 500 -> 503
@@ -162,7 +143,7 @@ class UserService:
                     )
             else:
                 logging.info(f"SMTP_ENABLE is False; Ваш код для putchik.ru: {otp}")
-        
+
         # Save totp secret in db
         new_totp_secret = TotpSecret(contact=totp_contact, secret=secret)
         self.session.add(new_totp_secret)
