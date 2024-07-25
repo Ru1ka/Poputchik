@@ -34,8 +34,10 @@ class Order(BaseModel):
     cost: int
     distance: int
     weight: int
+    readable_weight: str = None
     amount: int
     temperature_condition: bool
+    VAT: bool
     status: str
 
     loading_points: list[PointORM]

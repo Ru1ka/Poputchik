@@ -16,8 +16,10 @@ class Order(SqlAlchemyBase):
     cost = sqlalchemy.Column(sqlalchemy.Integer, nullable=True)  # rubles
     distance = sqlalchemy.Column(sqlalchemy.Integer, nullable=True)  # meters
     weight = sqlalchemy.Column(sqlalchemy.Integer, nullable=False)
+    readable_weight = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     amount = sqlalchemy.Column(sqlalchemy.Integer, nullable=False)
     temperature_condition = sqlalchemy.Column(sqlalchemy.Boolean, nullable=False)
+    VAT = sqlalchemy.Column(sqlalchemy.Boolean, nullable=False)  # НДС
     status = sqlalchemy.Column(sqlalchemy.String, nullable=False, default="Created")  # Created -> Transit -> Delivered
 
     customer_id = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey('Users.id'))

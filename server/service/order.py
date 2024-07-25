@@ -133,9 +133,11 @@ class OrderService:
             distance=distance,
             loading_time=data["loading_time"],
             weight=data["weight"],
+            readable_weight=data["readable_weight"],
             amount=data["amount"],
             temperature_condition=data["temperature_condition"],
-            customer_id=user.id
+            customer_id=user.id,
+            VAT=data["VAT"],
         )
         self.session.add(new_order)
         self._safe_commit()
