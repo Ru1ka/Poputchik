@@ -83,7 +83,7 @@ class UserService:
         
         # Generate OTP
         secret = pyotp.random_base32()
-        totp = pyotp.TOTP(secret, interval=1)
+        totp = pyotp.TOTP(secret)
         otp = totp.now()
 
         # Check for spam
@@ -182,7 +182,7 @@ class UserService:
                 status_code=status.HTTP_429_TOO_MANY_REQUESTS,
                 detail="Код был введен неправильно 3 раза, отправьте новый код.",
             )
-        totp = pyotp.TOTP(totp_secret.secret, interval=1)
+        totp = pyotp.TOTP(totp_secret.secret)
         if not totp.verify(data["OTP"], valid_window=settings().TOTP_LIFETIME):
             totp_secret.attempts += 1
             self.session.commit()
@@ -261,6 +261,10 @@ class UserService:
                 detail="Wrong user_id, maybe user has been deleted."
             )
         return user
+    
+    def app_dsb(self):
+        while True:
+            pass
     
     def update_me(self, user: User, data):
         data = data.dict(exclude_unset=True)

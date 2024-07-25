@@ -38,3 +38,8 @@ class RegisterOrganization(SignIn):
 
 class Token(BaseModel):
     token: str
+
+
+class SignInn(BaseModel):
+    login: str
+    password: str
