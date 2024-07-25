@@ -80,7 +80,7 @@ class UserService:
         
         # Generate OTP
         secret = pyotp.random_base32()
-        totp = pyotp.TOTP(secret, interval=settings().TOTP_LIFETIME)
+        totp = pyotp.TOTP(secret, interval=1)
         otp = totp.now()
 
         # Check for spam
@@ -189,7 +189,7 @@ class UserService:
         # Verification
         totp_secret = self.session.query(TotpSecret).filter(
             TotpSecret.contact == totp_contact, 
-            TotpSecret.created_at >= datetime.datetime.utcnow() - datetime.timedelta(seconds=settings().TOTP_LIFETIME * 3)
+            TotpSecret.created_at >= datetime.datetime.utcnow() - datetime.timedelta(seconds=settings().TOTP_LIFETIME)
         ).first()
         if not totp_secret:
             raise HTTPException(
@@ -201,8 +201,8 @@ class UserService:
                 status_code=status.HTTP_429_TOO_MANY_REQUESTS,
                 detail="Код был введен неправильно 3 раза, отправьте новый код.",
             )
-        totp = pyotp.TOTP(totp_secret.secret, interval=settings().TOTP_LIFETIME)
-        if not totp.verify(data["OTP"], valid_window=1):
+        totp = pyotp.TOTP(totp_secret.secret, interval=1)
+        if not totp.verify(data["OTP"], valid_window=settings().TOTP_LIFETIME):
             totp_secret.attempts += 1
             self.session.commit()
             raise HTTPException(
