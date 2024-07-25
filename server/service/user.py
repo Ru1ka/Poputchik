@@ -189,7 +189,7 @@ class UserService:
         # Verification
         totp_secret = self.session.query(TotpSecret).filter(
             TotpSecret.contact == totp_contact, 
-            TotpSecret.created_at >= datetime.datetime.utcnow() - datetime.timedelta(seconds=180)
+            TotpSecret.created_at >= datetime.datetime.utcnow() - datetime.timedelta(seconds=settings().TOTP_LIFETIME * 3)
         ).first()
         if not totp_secret:
             raise HTTPException(
@@ -202,7 +202,7 @@ class UserService:
                 detail="Код был введен неправильно 3 раза, отправьте новый код.",
             )
         totp = pyotp.TOTP(totp_secret.secret, interval=settings().TOTP_LIFETIME)
-        if not totp.verify(data["OTP"]):
+        if not totp.verify(data["OTP"], valid_window=1):
             totp_secret.attempts += 1
             self.session.commit()
             raise HTTPException(
