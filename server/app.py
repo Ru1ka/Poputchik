@@ -31,14 +31,15 @@ app.include_router(router)
 # CORS
 origins = [
     "http://localhost.tiangolo.com",
-    "https://localhost.tiangolo.com",
+    "http://putchik.ru",
+    "http://backend.putchik.ru",
     "http://localhost",
     "http://127.0.0.1:5173",
     "http://localhost:8000",
     "http://localhost:8080",
-    "http://localhost:5173",
-    "http://putchik.ru",
-    "https://putchik.ru"
+    "https://localhost.tiangolo.com",
+    "https://putchik.ru",
+    "https://backend.putchik.ru",
 ]
 
 app.add_middleware(
