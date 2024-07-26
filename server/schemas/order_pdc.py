@@ -52,7 +52,7 @@ class UpdateOrder(BaseModel):
     cargo: str = None
     cost: int = None
     loading_time: datetime
-    distance: int = None
+    distance: int = 0
     weight: int = None
     amount: int = None
     temperature_condition: bool = None

@@ -14,7 +14,7 @@ class Order(SqlAlchemyBase):
     created_at = sqlalchemy.Column(sqlalchemy.DateTime, default=datetime.datetime.utcnow)
     loading_time = sqlalchemy.Column(sqlalchemy.DateTime, nullable=False)
     cost = sqlalchemy.Column(sqlalchemy.Integer, nullable=True)  # rubles
-    distance = sqlalchemy.Column(sqlalchemy.Integer, nullable=True)  # meters
+    distance = sqlalchemy.Column(sqlalchemy.Integer, nullable=False)  # meters
     weight = sqlalchemy.Column(sqlalchemy.Integer, nullable=False)
     readable_weight = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     amount = sqlalchemy.Column(sqlalchemy.Integer, nullable=False)
