@@ -1,16 +1,16 @@
 import { useState, useEffect } from 'react';
 
-import icon_styles from "../../icon_styles.module.css"
-import input_styles from "../../UI/Input/Input.module.css"
-import cargo_styles from "./Cargo.module.css"
+import icon_styles from "../../icon_styles.module.css";
+import input_styles from "../../UI/Input/Input.module.css";
+import cargo_styles from "./Cargo.module.css";
 
-import icon from "../../assets/icons/Cargo.svg"
-import icon_search from "../../assets/icons/InputFind.svg"
-import icon_clear from "../../assets/icons/clearIcon.svg"
+import icon from "../../assets/icons/Cargo.svg";
+import icon_search from "../../assets/icons/InputFind.svg";
+import icon_clear from "../../assets/icons/clearIcon.svg";
 
 import jsonData from './cargo.json';
 
-interface CargoProps{
+interface CargoProps {
   value: string;
   onChange: (value: string) => void;
 }
@@ -23,8 +23,13 @@ function Cargo({ value, onChange }: CargoProps) {
     setDataList(extractedData);
   }, []);
 
+  const capitalizeFirstLetter = (value: string) => {
+    return value.charAt(0).toUpperCase() + value.slice(1);
+  };
+
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    onChange(event.target.value);
+    const newValue = capitalizeFirstLetter(event.target.value);
+    onChange(newValue);
   };
 
   const clearInput = () => {
@@ -33,9 +38,9 @@ function Cargo({ value, onChange }: CargoProps) {
 
   return (
     <div className={cargo_styles.container}>
-      <img src={icon} alt="Груз" className={icon_styles.add_order_icon}/>
+      <img src={icon} alt="Груз" className={icon_styles.add_order_icon} />
       <div style={{ position: 'relative', display: 'inline-block' }}>
-        <input 
+        <input
           list="cargo-list"
           value={value}
           onChange={handleInputChange}
@@ -44,8 +49,8 @@ function Cargo({ value, onChange }: CargoProps) {
         />
         {value && (
           <img
-            src={icon_clear} 
-            onClick={clearInput} 
+            src={icon_clear}
+            onClick={clearInput}
             style={{ position: 'absolute', right: '10px', top: '15px', cursor: 'pointer' }}
             className={icon_styles.clear_icon}
           />
@@ -53,7 +58,7 @@ function Cargo({ value, onChange }: CargoProps) {
         {!value && (
           <img
             src={icon_search}
-            style={{ position: 'absolute', right: '10px', top: '15px' }}
+            style={{ position: 'absolute', right: '13px', top: '17px' }}
             className={icon_styles.input_icon}
           />
         )}

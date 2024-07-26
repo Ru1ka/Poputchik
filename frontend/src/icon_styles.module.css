@@ -13,7 +13,7 @@
     width: 15px;
 }
 
-.title_icon, .add_order_icon, .preview_order_icon{
+.title_icon, .add_order_icon, .preview_order_icon, .temp_icon{
     width: 20px;
     height: 20px;
 }
@@ -46,4 +46,8 @@
 
 .preview_order_icon{
     filter: var(--inactive-filter);
+}
+
+.temp_icon{
+    filter: var(--blue-filter)
 }

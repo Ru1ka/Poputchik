@@ -15,9 +15,8 @@ import Address from '../../components/OrderInputs/Address';
 import PhoneInput from 'react-phone-input-2';
 import Button from '../../UI/Button/Button';
 import Input from '../../UI/Input/Input';
+import CustomPhoneInput from '../../UI/Input/CustomPhoneInput';
 import Header from '../../components/Header/Header';
-
-import useDebounce from '../../hooks/useDebounce';
 
 import fetchGetDistance from '../../fetch_functions/fetchGetDistance';
 import fetchCreateOrder from '../../fetch_functions/fetchCreateOrder';
@@ -34,6 +33,7 @@ import temp_icon from '../../assets/icons/Temp_regime.svg';
 import calendar_icon from '../../assets/icons/Calendar.svg';
 import path_icon from '../../assets/icons/Path.svg';
 import add_icon from '../../assets/icons/addPointIcon.svg';
+import clear_icon from '../../assets/icons/clearIcon.svg';
 import icon from '../../assets/icons/Add_new_order.svg';
 
 import styles from './OrderPage.module.css';
@@ -48,7 +48,6 @@ import { InputThemes } from '../../UI/Input/InputTypes';
 
 import Order from '../../components/Orders/OrderModel';
 import { AUTH_PAGE } from '../../router/paths';
-
 
 dayjs.extend(customParseFormat);
 
@@ -65,7 +64,7 @@ export default function OrderPage() {
   const [onUnloadingPhoneValue, setOnUnloadingPhoneValue] = useState<string>('');
   const [onLoadingValue, setOnLoadingValue] = useState<string>('');
   const [onUnloadingValue, setOnUnloadingValue] = useState<string>('');
-  const [selectedUnit, setSelectedUnit] = useState<string>('');
+  const [selectedUnit, setSelectedUnit] = useState<string>('кг');
   const [onLoadingCityValue, setOnLoadingCityValue] = useState<string>('');
   const [onUnloadingCityValue, setUnloadingCityValue] = useState<string>('');
   const [date, setDate] = useState<string>('');
@@ -73,7 +72,7 @@ export default function OrderPage() {
   const [weightValue, setWeightValue] = useState<number | null>(null);
   const [distanceValue, setDistanceValue] = useState<number | null>(null);
   const [isButtonDisabled, setIsButtonDisabled] = useState<boolean>(true);
-  const [vatValue, setVatValue] = useState<string>('');
+  const [vatValue, setVatValue] = useState<string>('с НДС');
   const [isChecked, setIsChecked] = useState<boolean>(false);
   const [price, setPrice] = useState<number>(0);
   const [additionalBlocks, setAdditionalBlocks] = useState<AdditionalBlock[]>([]);
@@ -106,7 +105,7 @@ export default function OrderPage() {
       setUnloadingCityValue(order.unloading_points[0].locality);
       setDate(dayjs(order.created_at).format('DD.MM.YYYY'));
       setTime(dayjs(order.created_at).format('HH:mm'));
-      setDistanceValue(order.distance / 1000);
+      setDistanceValue(Math.floor(order.distance / 1000));
       setVatValue(order.cost ? 'с НДС' : 'без НДС');
       setIsChecked(order.temperature_condition);
       setPrice(order.cost);
@@ -119,7 +118,7 @@ export default function OrderPage() {
     }
   }, [location.state, mode]);
 
-  const fetchDistance = useCallback(async () => {
+  const fetchDistance = async () => {
     if (onLoadingCityValue && onLoadingValue && onUnloadingCityValue && onUnloadingValue) {
       try {
         const distanceData = await fetchGetDistance(
@@ -128,42 +127,44 @@ export default function OrderPage() {
         );
 
         console.log('Distance data:', distanceData);
+        setDistanceValue(Math.floor(distanceData.distance / 1000));
         return distanceData;
       } catch (error) {
         console.error('Ошибка при расчете расстояния:', error);
+        setDistanceValue(0);
         return null;
       }
     }
     return null;
-  }, [onLoadingCityValue, onLoadingValue, onLoadingPhoneValue, onUnloadingCityValue, onUnloadingValue, onUnloadingPhoneValue]);
+  };
 
-  const calculateDistanceValue = useCallback(async () => {
-    const distanceData = await fetchDistance();
-    if (distanceData !== null) {
-      const value = distanceData.distance / 1000;
-      setDistanceValue(value);
-    } else {
-      setDistanceValue(0);
-    }
-  }, [fetchDistance]);
+  const capitalizeFirstLetter = (value: string) => value.charAt(0).toUpperCase() + value.slice(1);
 
-  const debouncedOnLoadingCityValue = useDebounce(onLoadingCityValue, 5000);
-  const debouncedOnLoadingValue = useDebounce(onLoadingValue, 5000);
-  const debouncedOnUnloadingCityValue = useDebounce(onUnloadingCityValue, 5000);
-  const debouncedOnUnloadingValue = useDebounce(onUnloadingValue, 5000);
+  const handleLoadingCityChange = (value: string) => {
+    setOnLoadingCityValue(capitalizeFirstLetter(value));
+  };
 
-  useEffect(() => {
-    calculateDistanceValue();
-  }, [calculateDistanceValue, debouncedOnLoadingCityValue, debouncedOnLoadingValue, debouncedOnUnloadingCityValue, debouncedOnUnloadingValue]);
+  const handleLoadingValueChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setOnLoadingValue(e.target.value);
+  };
 
-  useEffect(() => {
-    if (localStorage.getItem('token') !== '') {
-      fetchDistance()
-        .then(data => console.log(data));
-    }
-  }, [fetchDistance]);
+  const handleUnloadingCityChange = (value: string) => {
+    setUnloadingCityValue(capitalizeFirstLetter(value));
+  };
 
-  const fetchOrderDetailsCallback = useCallback(async () => {
+  const handleUnloadingValueChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setOnUnloadingValue(e.target.value);
+  };
+
+  const handleLoadingPhoneChange = (phone: string) => {
+    setLoadingPhoneValue(phone);
+  };
+
+  const handleUnloadingPhoneChange = (phone: string) => {
+    setOnUnloadingPhoneValue(phone);
+  };
+
+  const fetchOrderDetailsCallback = useCallback(async (distance: number | null) => {
     if (onLoadingCityValue && onLoadingValue && onUnloadingCityValue && onUnloadingValue) {
       try {
         const isoDateString = getISODateString(date, time);
@@ -180,7 +181,7 @@ export default function OrderPage() {
             cargoValue, price, adjustedWeight, amountValue!, isoDateString,
             onLoadingCityValue, onLoadingValue, onLoadingPhoneValue,
             onUnloadingCityValue, onUnloadingValue, onUnloadingPhoneValue,
-            isChecked, distanceValue!, additionalLoadingPoints
+            isChecked, distance!, additionalLoadingPoints
           );
           return orderDetails;
         } else {
@@ -191,7 +192,7 @@ export default function OrderPage() {
             id, cargoValue, price, adjustedWeight, amountValue!, isoDateString,
             onLoadingCityValue, onLoadingValue, onLoadingPhoneValue,
             onUnloadingCityValue, onUnloadingValue, onUnloadingPhoneValue,
-            isChecked, statusValue, distanceValue!, additionalLoadingPoints
+            isChecked, statusValue, distance!, additionalLoadingPoints
           );
           return orderDetails;
         }
@@ -204,7 +205,7 @@ export default function OrderPage() {
   }, [
     cargoValue, weightValue, amountValue, date, price, time,
     onLoadingCityValue, onLoadingValue, onLoadingPhoneValue,
-    onUnloadingCityValue, onUnloadingValue, onUnloadingPhoneValue, isChecked, selectedUnit, distanceValue, location.state, mode, additionalBlocks
+    onUnloadingCityValue, onUnloadingValue, onUnloadingPhoneValue, isChecked, selectedUnit, location.state, mode, additionalBlocks
   ]);
 
   const getISODateString = (date: string, time: string) => {
@@ -244,14 +245,6 @@ export default function OrderPage() {
     }
   };
 
-  const handleOnLoadingCityChange = (value: string) => {
-    setOnLoadingCityValue(value);
-  };
-
-  const handleUnloadingCityChange = (value: string) => {
-    setUnloadingCityValue(value);
-  };
-
   const handleVATChange = (value: string) => {
     setVatValue(value);
   };
@@ -265,14 +258,6 @@ export default function OrderPage() {
 
   const handleCheckboxChange = () => {
     setIsChecked(!isChecked);
-  };
-
-  const handleInputChange1 = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setOnLoadingValue(e.target.value);
-  };
-
-  const handleInputChange2 = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setOnUnloadingValue(e.target.value);
   };
 
   const setWeightNumberValue = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -302,8 +287,7 @@ export default function OrderPage() {
     const checkInputs = () => {
       return cargoValue && weightValue !== null && selectedUnit && amountValue !== null && date.length === 10 && time.length === 5 &&
         onLoadingCityValue && onLoadingValue && isPhoneNumberValid(onLoadingPhoneValue) &&
-        onUnloadingCityValue && onUnloadingValue && isPhoneNumberValid(onUnloadingPhoneValue) && vatValue &&
-        distanceValue !== null;
+        onUnloadingCityValue && onUnloadingValue && isPhoneNumberValid(onUnloadingPhoneValue) && vatValue;
     };
 
     const checkPreview = () => {
@@ -318,7 +302,8 @@ export default function OrderPage() {
 
   const handleOrderSubmit = async () => {
     if (!isButtonDisabled) {
-      const orderDetails = await fetchOrderDetailsCallback();
+      const distanceData = await fetchDistance();
+      const orderDetails = await fetchOrderDetailsCallback(distanceData?.distance ?? null);
       if (orderDetails) {
         navigate('/orders', { state: { newOrder: orderDetails } });
       }
@@ -327,7 +312,8 @@ export default function OrderPage() {
 
   const handleSaveChanges = async () => {
     if (!isButtonDisabled) {
-      const orderDetails = await fetchOrderDetailsCallback();
+      const distanceData = await fetchDistance();
+      const orderDetails = await fetchOrderDetailsCallback(distanceData?.distance ?? null);
       if (orderDetails) {
         navigate('/orders', { state: { updatedOrder: orderDetails } });
       }
@@ -344,7 +330,7 @@ export default function OrderPage() {
 
   const handleBlockChange = (index: number, field: keyof AdditionalBlock, value: string) => {
     const updatedBlocks = [...additionalBlocks];
-    updatedBlocks[index][field] = value;
+    updatedBlocks[index][field] = field === 'city' ? capitalizeFirstLetter(value) : value;
     setAdditionalBlocks(updatedBlocks);
   };
 
@@ -385,7 +371,7 @@ export default function OrderPage() {
                   onChange={handleDropdownChange}
                   options={[
                     { label: 'кг', value: 'кг' },
-                    { label: 'т', value: 'т' },
+                    { label: 'т', value: 'т' }
                   ]}
                 />
               </div>
@@ -427,36 +413,22 @@ export default function OrderPage() {
                   <img src={point_icon} alt='Населённый пункт' className={icon_styles.add_order_icon} />
                   <City
                     value={onLoadingCityValue}
-                    onChange={handleOnLoadingCityChange} />
+                    onChange={handleLoadingCityChange} />
                 </div>
                 <Address
                   id='onLoadingInput'
                   value={onLoadingValue}
-                  onChange={handleInputChange1}
+                  onChange={handleLoadingValueChange}
                   onClear={clearLoadingInput}
                 />
               </div>
               <div className={styles.phone_block}>
                 <img src={phone_icon} alt='Телефон' className={icon_styles.add_order_icon} />
                 <div className={styles.phone_input}>
-                  <PhoneInput
-                    inputClass={input_styles.phone_input}
-                    country={'ru'}
-                    onlyCountries={['ru']}
-                    disableDropdown
-                    disableSearchIcon={true}
+                  <CustomPhoneInput
                     value={onLoadingPhoneValue}
-                    onChange={(phone) => setLoadingPhoneValue(phone)}
-                    countryCodeEditable={false}
-                    placeholder={'+7 (999) 999-99-99'}
-                    containerStyle={containerStyle}
-                    buttonStyle={buttonStyle}
-                    inputStyle={inputStyle}
-                    inputProps={{
-                      name: 'phone',
-                      required: true,
-                      autoFocus: true
-                    }}
+                    onChange={handleLoadingPhoneChange}
+                    phone={''}
                   />
                 </div>
               </div>
@@ -488,6 +460,12 @@ export default function OrderPage() {
                     onChange={(e) => handleBlockChange(index, 'address', e.target.value)}
                     onClear={() => handleBlockChange(index, 'address', '')}
                   />
+                  <img 
+                    src={clear_icon} 
+                    alt='Удалить точку' 
+                    className={cn(icon_styles.clear_icon, styles.remove_icon)} 
+                    onClick={() => handleRemoveBlock(index)}
+                  />
                 </div>
                 <div className={styles.phone_block}>
                   <img src={phone_icon} alt='Телефон' className={icon_styles.add_order_icon} />
@@ -513,13 +491,6 @@ export default function OrderPage() {
                     />
                   </div>
                 </div>
-                <Button
-                  buttonTheme={ButtonThemes.RED_FILLED}
-                  className={cn(button_styles.button, button_styles.button_width300px, styles.remove_button)}
-                  onClick={() => handleRemoveBlock(index)}
-                >
-                  Удалить точку
-                </Button>
               </div>
             ))}
 
@@ -535,7 +506,7 @@ export default function OrderPage() {
                 <Address
                   id='onUnloadingInput'
                   value={onUnloadingValue}
-                  onChange={handleInputChange2}
+                  onChange={handleUnloadingValueChange}
                   onClear={clearUnloadingInput}
                 />
               </div>
@@ -550,7 +521,7 @@ export default function OrderPage() {
                     disableSearchIcon={true}
                     countryCodeEditable={false}
                     value={onUnloadingPhoneValue}
-                    onChange={(phone) => setOnUnloadingPhoneValue(phone)}
+                    onChange={handleUnloadingPhoneChange}
                     placeholder={'+7 (999) 999-99-99'}
                     containerStyle={containerStyle}
                     buttonStyle={buttonStyle}
@@ -585,7 +556,7 @@ export default function OrderPage() {
               <div className={styles.order_preview_element_info}>
                 {cargoValue ? <img src={cargo_icon} className={icon_styles.title_icon}></img> : <img src={cargo_icon} className={icon_styles.preview_order_icon}></img>}
                 <p style={{ color: cargoValue ? 'black' : 'var(--inactive-text-color)' }}>{cargoValue ? cargoValue : 'Нет данных'}</p>
-                {isChecked && <img src={temp_icon} alt='Температурный режим' className={icon_styles.title_icon} />}
+                {isChecked && <img src={temp_icon} alt='Температурный режим' className={icon_styles.temp_icon} />}
               </div>
             </div>
 
@@ -608,7 +579,7 @@ export default function OrderPage() {
               <div className={styles.order_preview_element_info}>
                 {amountValue ? <img src={amount_icon} className={icon_styles.title_icon}></img> : <img src={amount_icon} className={icon_styles.preview_order_icon}></img>}
                 <p style={{ color: amountValue ? 'black' : 'var(--inactive-text-color)' }}>
-                  {amountValue ? (<>{amountValue} <span className={amount_styles.amount_value}>м<sup>3</sup></span></>) : ('Нет данных')}
+                  {amountValue ? (<>{amountValue} <span className={amount_styles.amount_value_preview}>м<sup>3</sup></span></>) : ('Нет данных')}
                 </p>
               </div>
             </div>

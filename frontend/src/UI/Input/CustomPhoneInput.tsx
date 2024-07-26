@@ -3,7 +3,7 @@ import 'react-phone-input-2/lib/style.css';
 import styles from "./CustomPhoneInput.module.css";
 import { buttonStyle, containerStyle, inputStyle } from './PhoneInputStyling';
 
-const CustomPhoneInput = (props: { phone: string, onChange: (value: string) => void, autoFocus? : boolean }) => {
+const CustomPhoneInput = (props: { phone: string, onChange: (value: string) => void, autoFocus? : boolean, value: string }) => {
     return (
         <PhoneInput
             inputClass={styles.phone_input}

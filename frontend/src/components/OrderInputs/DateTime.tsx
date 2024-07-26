@@ -1,8 +1,8 @@
-import icon from "../../assets/icons/Time.svg"
+import icon from "../../assets/icons/Time.svg";
 import { ChangeEvent } from "react";
-import styles from "../../UI/Input/Input.module.css"
-import dateTimeStyles from "./DateTime.module.css"
-import icon_styles from "../../icon_styles.module.css"
+import styles from "../../UI/Input/Input.module.css";
+import dateTimeStyles from "./DateTime.module.css";
+import icon_styles from "../../icon_styles.module.css";
 
 interface DateTimeInputProps {
   value: string;
@@ -18,7 +18,15 @@ const DateTimeInput: React.FC<DateTimeInputProps> = ({ value, onChange }) => {
       case 0: return num <= 2;
       case 1: {
         const firstNum = parseInt(value[0]);
-        return firstNum !== 2 ? num <= 4 : num <= 3;
+        if (firstNum === 1) {
+          return num <= 9; // Allow 0-9 if the first digit is 1
+        } else if (firstNum === 0) {
+          return num <= 9; // Allow 0-9 if the first digit is 0
+        } else if (firstNum === 2) {
+          return num <= 3; // Allow 0-3 if the first digit is 2
+        } else {
+          return false;
+        }
       }
       case 2: return num <= 5;
       case 3: return num <= 9;
@@ -50,7 +58,7 @@ const DateTimeInput: React.FC<DateTimeInputProps> = ({ value, onChange }) => {
 
   return (
     <div className={dateTimeStyles.container}>
-      <img src={icon} className={icon_styles.add_order_icon}/>
+      <img src={icon} className={icon_styles.add_order_icon} />
       <input 
         type="text" 
         placeholder="00:00"

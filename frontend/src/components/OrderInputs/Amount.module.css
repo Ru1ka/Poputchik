@@ -12,8 +12,17 @@
     border: 0;
 }
 
+.amount_value_preview{
+    vertical-align: baseline;
+    display: inline-block;
+    line-height: .8;
+}
+
 .amount_value{
-    padding-bottom: 6px;
+    vertical-align: top;
+    display: inline-block;
+    line-height: 1;
+    padding-bottom: 3.5px;
 }
 
 .container{

@@ -22,7 +22,8 @@ const Dropdown = ({
   initialValue,
   options,
   id,
-  onChange
+  onChange,
+  value
 }: IDropdown) => {
   const [dropdown, setDropdown] = useState<boolean | null>(null);
   const [selected, setSelected] = useState<OptionType | null>(
@@ -44,6 +45,13 @@ const Dropdown = ({
     return () =>
       document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  useEffect(() => {
+    if (value) {
+      const selectedOption = options.find(option => option.value === value);
+      setSelected(selectedOption || null);
+    }
+  }, [value, options]);
 
   const handleClick = () => {
     setDropdown(!dropdown);

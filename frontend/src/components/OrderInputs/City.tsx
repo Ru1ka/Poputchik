@@ -23,15 +23,23 @@ const City: React.FC<CityProps> = ({ value, onChange }) => {
     setDataList(extractedData);
   }, []);
 
+  useEffect(() => {
+    setInputValue(value);
+  }, [value]);
+
+  const capitalizeFirstLetter = (value: string) => {
+    return value.charAt(0).toUpperCase() + value.slice(1);
+  };
+
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const newValue = event.target.value;
+    const newValue = capitalizeFirstLetter(event.target.value);
     setInputValue(newValue);
-    onChange(newValue); // Pass the new value to the parent component
+    onChange(newValue);
   };
 
   const clearInput = () => {
     setInputValue('');
-    onChange(''); // Clear the value in the parent component as well
+    onChange('');
   };
 
   return (
@@ -48,14 +56,14 @@ const City: React.FC<CityProps> = ({ value, onChange }) => {
           <img
             src={icon_clear} 
             onClick={clearInput} 
-            style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', cursor: 'pointer' }}
+            style={{ position: 'absolute', right: '10px', top: '15px', cursor: 'pointer' }}
             className={icon_styles.clear_icon}
           />
         )}
         {!inputValue && (
           <img
             src={icon_search}
-            style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)' }}
+            style={{ position: 'absolute', right: '13px', top: '17px' }}
             className={icon_styles.input_icon}
           />
         )}

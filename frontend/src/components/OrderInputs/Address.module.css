@@ -1,5 +1,20 @@
-.address_input{
+.container {
     position: relative;
-    display: inline-block;
-    height: 45px;
-}
+    width: 300px; /* Ensure the container is 300px wide */
+  }
+  
+  .address_input {
+    position: relative;
+    width: 100%;
+  }
+  
+  .clear_button {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+  }
+  

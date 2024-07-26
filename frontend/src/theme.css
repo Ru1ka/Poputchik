@@ -9,6 +9,7 @@
     --white-filter: invert(100%);
     --active-red-filter: invert(20%) sepia(95%) saturate(6770%) hue-rotate(338deg) brightness(81%) contrast(113%);
     --inactive-filter: invert(97%) sepia(0%) saturate(20%) hue-rotate(232deg) brightness(94%) contrast(82%);
+    --blue-filter: invert(25%) sepia(72%) saturate(2319%) hue-rotate(198deg) brightness(92%) contrast(103%);
 
     --border-radius-s: .35rem; /* 4px */ 
     --border-radius-m: .83rem; /* 10px */
