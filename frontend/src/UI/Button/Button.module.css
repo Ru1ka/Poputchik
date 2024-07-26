@@ -83,6 +83,25 @@
     padding: 5px;
 }
 
+.loader {
+    border: 2px solid transparent;
+    border-radius: 50%;
+    border-top: 2px solid #ffffff;
+    width: 32px;
+    height: 32px;
+    animation: spin 1s linear infinite;
+    margin: 0 auto;
+  }
+  
+  @keyframes spin {
+    0%, 100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: rotate(2);
+    }
+  }
+
 .close {
     position: absolute;
     cursor: pointer;
