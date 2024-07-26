@@ -85,6 +85,7 @@ class OrderService:
                     status_code=status.HTTP_408_REQUEST_TIMEOUT,
                     detail="ORS timeout."
                 )
+            return 0
         try:
             if not request['routes'] or "distance" not in request['routes'][0]["summary"]:
                 return 0
