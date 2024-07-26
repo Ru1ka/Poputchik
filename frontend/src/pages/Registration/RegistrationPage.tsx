@@ -9,7 +9,7 @@ import { IAuthFormData } from '../../components/Forms/AuthForm/AuthForm';
 
 function RegistrationPage() {
     const [logInStage, setLogInStage] = useState<TypesOfLogInStage>(0);
-    const [typeOfInput, setTypeOfInput] = useState<TypesOfLogin>(TypesOfLogin.EMAIL);
+    const [typeOfInput, setTypeOfInput] = useState<TypesOfLogin>(TypesOfLogin.PHONE);
 
     const [formData, setFormData] = useState<IAuthFormData>({
         email: '',
@@ -49,6 +49,7 @@ function RegistrationPage() {
     const setUserAlreadyExists = (newValue: boolean) => {
         setFormData({ ...formData, userAlreadyExists: newValue })
     }
+
 
     return (
         <div className={styles.regPage}>

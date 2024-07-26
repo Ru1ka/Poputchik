@@ -5,7 +5,9 @@ import { TypesOfLogin } from './LogInInputTypes';
 import cn from "classnames";
 import { AuthFormStepProps } from './Forms/AuthForm/AuthForm';
 
-export function formatPhoneNumber(phoneNumber: string) {
+export function formatPhoneNumber(phoneNumber: string | null): string {
+    if (phoneNumber == null)
+        return ' - ';
     // Удаляем все нецифровые символы
     const cleanPhoneNumber = phoneNumber.replace(/\D/g, '');
 

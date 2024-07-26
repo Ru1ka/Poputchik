@@ -7,6 +7,7 @@ import { ButtonThemes } from '../UI/Button/ButtonTypes'
 import { AuthFormStepProps } from './Forms/AuthForm/AuthForm'
 import fetchPostCheckUserExists from "../fetch_functions/fetchPostCheckUserExists";
 import CustomPhoneInput from "../UI/Input/CustomPhoneInput";
+import { useState } from "react";
 
 export interface LogInComponentProps extends AuthFormStepProps {
     changeTypeOfInput: () => void;
@@ -14,6 +15,13 @@ export interface LogInComponentProps extends AuthFormStepProps {
 }
 
 function LogInComponent(props: LogInComponentProps) {
+    const [emailIsValid, setEmailIsValid] = useState<boolean>(true)
+
+    function validateEmail(email: string) {
+        const regex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
+        return regex.test(email);
+    }
+
     return (
         <div className={cn(container_styles.flex_col, container_styles.formContainer)}>
             <div className={cn(container_styles.flex_col, container_styles.gap_10)}>
@@ -40,8 +48,10 @@ function LogInComponent(props: LogInComponentProps) {
                     autoFocus={true}
                     value={props.formData.email}
                     name="email"
+                    isValid={emailIsValid}
+                    errorMessage="Пожалуйста, введите корректный email"
                     // Добавить вывод ошибки, если она происходит
-                    onChange={(e: any) => { props.handleInputChange('email', e.target.value) }} />
+                    onChange={(e: any) => { { props.handleInputChange('email', e.target.value); setEmailIsValid(true) } }} />
             }
 
             <Button
@@ -49,23 +59,27 @@ function LogInComponent(props: LogInComponentProps) {
                 buttonTheme={ButtonThemes.RED_FILLED}
                 disabled={
                     (props.typeOfLogin == "phone" && props.formData.phone == "")
-                    || (props.typeOfLogin == "email" && props.formData.email == "")}
+                    || (props.typeOfLogin == "email" && (props.formData.email == "" || !emailIsValid))}
                 onClick={() => {
-                    fetchPostCheckUserExists(props.typeOfLogin, props.formData.phone, props.formData.email)
-                        .then(data => {
-                            if (data.user_exists) {
-                                props.setUserAlreadyExists(true);
-                                props.handleNextStep(3);
-                                console.log(data);
-                            } else {
-                                props.setUserAlreadyExists(false);
-                                props.handleNextStep();
-                            }
-                            console.log('Пользователь существует:', data.user_exists);
-                        })
-                        .catch(error => {
-                            console.error('Ошибка:', error);
-                        });
+                    if (props.typeOfLogin == "email" && !validateEmail(props.formData.email)) {
+                        setEmailIsValid(false);
+                    } else {
+                        fetchPostCheckUserExists(props.typeOfLogin, props.formData.phone, props.formData.email)
+                            .then(data => {
+                                if (data.user_exists) {
+                                    props.setUserAlreadyExists(true);
+                                    props.handleNextStep(3);
+                                    console.log(data);
+                                } else {
+                                    props.setUserAlreadyExists(false);
+                                    props.handleNextStep();
+                                }
+                                console.log('Пользователь существует:', data.user_exists);
+                            })
+                            .catch(error => {
+                                console.error('Ошибка:', error);
+                            });
+                    }
                     console.log(props.formData)
                 }} />
             <Button

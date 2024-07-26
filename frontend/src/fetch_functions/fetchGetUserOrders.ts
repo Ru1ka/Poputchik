@@ -1,12 +1,12 @@
 import { SERVER_ROUTE } from "../constants";
-import { AUTH_PAGE } from "../router/paths";
+// import { AUTH_PAGE } from "../router/paths";
 
 async function fetchGetUserOrders() {
     try {
-        if (localStorage.getItem('token') == undefined) {
-            window.location.href = AUTH_PAGE;
-            return;
-        }
+        // if (localStorage.getItem('token') == undefined) {
+        //     window.location.href = AUTH_PAGE;
+        //     return;
+        // }
         var myHeaders = new Headers();
         myHeaders.append("Authorization", "Bearer " + localStorage.getItem('token'));
 

@@ -9,7 +9,7 @@ const PhysicalProfile = (props: { userInfo: UserInfo, handleInputChange: (name: 
     return (
         <div className={styles.inputWrapper}>
             <div className={styles.inputContainer}>
-                <h3>ФИО</h3>
+                <h3>Имя</h3>
                 <Input
                     inputTheme={InputThemes.RED}
                     value={props.userInfo.name}

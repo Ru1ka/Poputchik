@@ -34,7 +34,7 @@ function EnterPersonalDataComponent(props: CheckboxProps) {
                 <p className="hint" style={{ whiteSpace: 'break-spaces' }}>
                     {"Введите "
                         + (props.formData.is_organization_account ? "данные организации \nдля регистрации как юридическое лицо"
-                            : "ФИО для регистрации как физическое лицо")}
+                            : "имя для регистрации как физическое лицо")}
                 </p>
             </div>
 

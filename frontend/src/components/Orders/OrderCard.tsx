@@ -25,7 +25,7 @@ import Dropdown from "../OrderInputs/WeightDropdown";
 import fetchPostAdminOrder from "../../fetch_functions/fetchPostAdminOrder";
 
 const OrderCard = (props: { order: Order }) => {
-  const navigate = useNavigate();
+    const navigate = useNavigate();
 
   const handleEditOrder = () => {
     if (localStorage.getItem('admin') == undefined) {
@@ -33,9 +33,9 @@ const OrderCard = (props: { order: Order }) => {
     }
   };
 
-  const handleRepeatOrder = () => {
-    navigate(ORDER_PAGE, { state: { order: props.order, mode: 'repeat' } });
-  };
+    const handleRepeatOrder = () => {
+        navigate(ORDER_PAGE, { state: { order: props.order, mode: 'repeat' } });
+    };
 
   const [adminPrice, setAdminPrice] = useState<string>(props.order.cost.toString())
   const [adminStatus, setAdminStatus] = useState<string>(props.order.status)
@@ -64,30 +64,30 @@ const OrderCard = (props: { order: Order }) => {
             <OrderStatusElement status={props.order.status} />
           </div>
 
-          <div className={cn(container_styles.flex_row, container_styles.gap_10)} style={{ maxWidth: 500, flexWrap: 'wrap' }}>
-            <RedBox startImgSrc={path} text={`${distanceInKm} км`} done={props.order.status === "Delivered"} />
-            <RedBox startImgSrc={volume} text={`${props.order.amount} м³`} done={props.order.status === "Delivered"} />
-            <RedBox startImgSrc={weight} text={`${props.order.weight} кг`} done={props.order.status === "Delivered"} />
-            <RedBox 
-              startImgSrc={cargo} 
-              endImgSrc={props.order.temperature_condition ? temp : undefined} 
-              text={props.order.cargo} 
-              done={props.order.status === "Delivered"} 
-            />
-          </div>
+                    <div className={cn(container_styles.flex_row, container_styles.gap_10)} style={{ maxWidth: 500, flexWrap: 'wrap' }}>
+                        <RedBox startImgSrc={path} text={`${distanceInKm} км`} done={props.order.status === "Delivered"} />
+                        <RedBox startImgSrc={volume} text={`${props.order.amount} м³`} done={props.order.status === "Delivered"} />
+                        <RedBox startImgSrc={weight} text={`${props.order.weight} кг`} done={props.order.status === "Delivered"} />
+                        <RedBox
+                            startImgSrc={cargo}
+                            endImgSrc={props.order.temperature_condition ? temp : undefined}
+                            text={props.order.cargo}
+                            done={props.order.status === "Delivered"}
+                        />
+                    </div>
 
-          <div className={styles.pathContainer}>
-            <div>
-              <div style={{ fontWeight: 500, fontSize: '15px', lineHeight: '17px' }}>{props.order.loading_points[0].locality}</div>
-              <div className="hint" style={{ wordBreak: 'break-word' }}>{props.order.loading_points[0].address}</div>
-            </div>
-            <img src={pathArrow} className={styles.arrowImage} />
-            <div>
-              <div style={{ fontWeight: 500, fontSize: '15px', lineHeight: '17px' }}>{props.order.unloading_points[0].locality}</div>
-              <div className="hint" style={{ wordBreak: 'break-word' }}>{props.order.unloading_points[0].address}</div>
-            </div>
-          </div>
-        </div>
+                    <div className={styles.pathContainer}>
+                        <div>
+                            <div style={{ fontWeight: 500, fontSize: '15px', lineHeight: '17px' }}>{props.order.loading_points[0].locality}</div>
+                            <div className="hint" style={{ wordBreak: 'break-word' }}>{props.order.loading_points[0].address}</div>
+                        </div>
+                        <img src={pathArrow} className={styles.arrowImage} />
+                        <div>
+                            <div style={{ fontWeight: 500, fontSize: '15px', lineHeight: '17px' }}>{props.order.unloading_points[0].locality}</div>
+                            <div className="hint" style={{ wordBreak: 'break-word' }}>{props.order.unloading_points[0].address}</div>
+                        </div>
+                    </div>
+                </div>
 
         {localStorage.getItem('admin') == undefined ? (
           <div className={styles.priceAndRepeatContainer}>

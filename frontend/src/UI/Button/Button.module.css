@@ -58,7 +58,7 @@
     cursor: pointer;
     width: 24px;
     height: 24px;
-    margin: 18px 18px;
+    margin: -32px -32px;
     padding-right: 8px;
     display: flex;
     flex-direction: row;
@@ -81,4 +81,26 @@
     line-height: 0.5;
     height: fit-content;
     padding: 5px;
+}
+
+.close {
+    position: absolute;
+    cursor: pointer;
+    width: 24px;
+    height: 24px;
+    margin: 18px 18px;
+    top: 0px;
+    right: 0px;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    background: none;
+    border-radius: 40px;
+}
+
+.close img {
+    rotate: 45deg;
+    height: 17px;
+    filter: var(--active-red-filter);
 }

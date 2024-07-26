@@ -20,7 +20,11 @@ export interface UserInfo {
 
 const Profile = (props: { userInfo: UserInfo, handleInputChange: (name: string, value: any) => void }) => {
     function submitProfileFormHandler() {
-        fetchPutUserProfile(props.userInfo);
+        fetchPutUserProfile(props.userInfo)
+            .then(() => {
+                localStorage.setItem('username', props.userInfo.is_organization_account ? props.userInfo.organization : props.userInfo.name);
+                window.location.reload();
+            })
     }
 
     return (

@@ -6,12 +6,12 @@ import cn from 'classnames';
 
 const Input = ({ inputTheme, errorMessage, isValid, ...props }: InputPropsType) => {
     return (
-        <div className={container_styles.flex_col}>
+        <div className={cn(container_styles.flex_col, container_styles.gap_5)}>
             <input
                 {...props}
                 className={cn(styles.input, styles[inputTheme])}
             />
-            {!isValid && <div className='hint'>{errorMessage}</div>}
+            {!isValid && <div className={styles.errorMessage} >{errorMessage}</div>}
         </div>
 
     );

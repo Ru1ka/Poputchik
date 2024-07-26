@@ -19,26 +19,17 @@ async function fetchPutUserProfile(userInfo: UserInfo) {
             body:
                 userInfo.is_organization_account
                     ? JSON.stringify({
-                        id: userInfo.id,
                         phone: userInfo.phone,
                         email: userInfo.email,
-                        name: userInfo.name,
-                        is_organization_account: userInfo.is_organization_account,
                         organization: {
                             organization_name: userInfo.organization,
                             inn: userInfo.inn,
                         }
                     })
                     : JSON.stringify({
-                        id: userInfo.id,
-                        phone: userInfo.phone,
-                        email: userInfo.email,
+                        phone: (userInfo.phone == '' || userInfo.phone == '7') ? undefined : userInfo.phone,
+                        email: userInfo.email == '' ? undefined : userInfo.email,
                         name: userInfo.name,
-                        is_organization_account: userInfo.is_organization_account,
-                        organization: {
-                            organization_name: userInfo.organization,
-                            inn: userInfo.inn,
-                        }
                     })
         };
         const response = await fetch(SERVER_ROUTE + '/api/user/me', requestOptions);

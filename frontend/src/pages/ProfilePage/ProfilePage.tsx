@@ -1,8 +1,9 @@
 import styles from "./ProfilePage.module.css";
 import Header from "../../components/Header/Header";
 import Profile, { UserInfo } from "../../components/Profile/Profile";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import fetchGetUserProfile from "../../fetch_functions/fetchGetUserProfile";
+import { ModalContext } from "../../components/Modal/ModalContext";
 
 export interface ProfileResponse {
     id: number,
@@ -35,22 +36,37 @@ const ProfilePage = () => {
         setUserInfo({ ...userInfo, [name]: value });
     };
 
-    useEffect(() => {
-        if (localStorage.getItem('token') !== '') {
-            fetchGetUserProfile()
-                .then((data: ProfileResponse) => {
-                    console.log(data);
+    const { isOpen, openModal } = useContext(ModalContext);
 
-                    setUserInfo({
-                        id: data.id,
-                        name: data.name,
-                        is_organization_account: data.is_organization_account,
-                        email: data.email == null ? '' : data.email,
-                        organization: data.organization ? data.organization.organization_name?.toString() : '',
-                        inn: data.organization ? data.organization.inn.toString() : '',
-                        phone: data.phone,
-                    });
-                })
+    const setInfoToUserInfo = () => {
+        fetchGetUserProfile()
+        .then((data: ProfileResponse) => {
+            console.log(data);
+
+            setUserInfo({
+                id: data.id,
+                name: data.name,
+                is_organization_account: data.is_organization_account,
+                email: data.email == null ? '' : data.email,
+                organization: data.organization ? data.organization.organization_name?.toString() : '',
+                inn: data.organization ? data.organization.inn.toString() : '',
+                phone: data.phone == null ? '' : data.phone,
+            });
+        })
+    }
+
+    useEffect(() => {
+        if (!isOpen && localStorage.getItem('token') != undefined) {
+            setInfoToUserInfo();
+        }
+    }, [isOpen])
+
+
+    useEffect(() => {
+        if (localStorage.getItem('token') == undefined) {
+            openModal();
+        } else {
+            setInfoToUserInfo();
         }
     }, [])
 

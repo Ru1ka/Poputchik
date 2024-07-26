@@ -1,5 +1,5 @@
 import { Tooltip as ReactTooltip, TooltipRefProps } from "react-tooltip";
-import { AUTH_PAGE, MAIN_PAGE, ORDER_PAGE, ORDERS_PAGE, PROFILE_PAGE } from '../../router/paths';
+import { MAIN_PAGE, ORDER_PAGE, ORDERS_PAGE, PROFILE_PAGE } from '../../router/paths';
 import styles from "./Header.module.css";
 import logo from '../../assets/icons/Logo_full.svg';
 import Profile from '../../assets/icons/Profile.svg';
@@ -11,9 +11,11 @@ import Burger from '../../assets/icons/Burger_menu.svg';
 import cn from "classnames"
 import Button from "../../UI/Button/Button";
 import { ButtonThemes } from "../../UI/Button/ButtonTypes";
-import { useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import fetchGetUserProfile from "../../fetch_functions/fetchGetUserProfile";
 import { ProfileResponse } from "../../pages/ProfilePage/ProfilePage";
+import { ModalContext } from "../Modal/ModalContext";
+import RegistrationPage from "../../pages/Registration/RegistrationPage";
 
 const Header = () => {
     const poputchik_email: string = "support@putchik.ru";
@@ -34,7 +36,7 @@ const Header = () => {
         localStorage.removeItem('token');
         localStorage.removeItem('username');
         localStorage.removeItem('admin');
-        window.location.href = AUTH_PAGE;
+        window.location.reload();
     }
 
     const [dropdownState, setDropdownState] = useState(false);
@@ -67,20 +69,27 @@ const Header = () => {
 
     const [username, setUsername] = useState<string>('');
 
+    const { isOpen, openModal } = useContext(ModalContext);
+
     return (
         <div className={styles.headerWrapper}>
+            {isOpen && (
+                <RegistrationPage />
+            )}
             <div className={styles.centeredFrame}>
-                <img className={styles.logo} src={logo} onClick={handleGoToMainPageClick}></img>
+                <img className={styles.logo} src={logo}
+                    onClick={handleGoToMainPageClick}
+                ></img>
                 <div className={cn(styles.linksSection, styles.onlyBigScreen)}>
                     <a href={ORDER_PAGE}><h3>Оформить заявку</h3></a>
                     <a href={ORDERS_PAGE}><h3>История заявок</h3></a>
                     <ReactTooltip
                         id="get-support-tooltip"
                         place="bottom"
-                        className={styles.tooltip}
+                        className={cn(styles.tooltip, styles.littleTooltip, styles.onlyBigScreen)}
                         clickable={true}
                         noArrow={true}
-                        offset={38}
+                        offset={28}
                         opacity={1}
                         delayHide={200}
                         disableStyleInjection={true}
@@ -101,22 +110,29 @@ const Header = () => {
                     className={cn(styles.tooltip, styles.littleTooltip, styles.onlyBigScreen)}
                     clickable={true}
                     noArrow={true}
-                    offset={38}
+                    offset={28}
                     opacity={1}
                     delayHide={200}
                     disableStyleInjection={true}
                     openEvents={{ ['click']: true }}
                     closeEvents={{ ['click']: true }}
                 >
-                    {localStorage.getItem('admin') == undefined &&
-                        <Button buttonTheme={ButtonThemes.RED_FILLED} className={cn(styles.littleRow, styles.red)} onClick={handleGoToProfilePageClick}>
+                    {(localStorage.getItem('admin') == undefined && localStorage.getItem('token') != undefined) &&
+                        <Button buttonTheme={ButtonThemes.RED} className={cn(styles.littleRow, styles.redText)} onClick={handleGoToProfilePageClick}>
                             <img src={Profile} />
-                            Личный кабинет
+                            Профиль
                         </Button>}
-                    <Button buttonTheme={ButtonThemes.RED} className={cn(styles.littleRow, styles.redText)} onClick={handleExitClick}>
-                        <img src={Exit} />
-                        Выйти из аккаунта
-                    </Button>
+                    {localStorage.getItem('token') == undefined ?
+                        <Button buttonTheme={ButtonThemes.RED} className={cn(styles.littleRow, styles.redText)} onClick={openModal}>
+                            <img src={Exit} />
+                            Войти
+                        </Button>
+                        :
+                        <Button buttonTheme={ButtonThemes.BLACK} className={cn(styles.littleRow)} onClick={handleExitClick}>
+                            <img src={Exit} />
+                            Выйти
+                        </Button>
+                    }
                 </ReactTooltip>
                 <div className={cn(styles.profile, styles.onlyBigScreen)} data-tooltip-id="profile-options">
                     <h3>{username}</h3>
@@ -129,7 +145,7 @@ const Header = () => {
                     className={cn(styles.tooltip, styles.onlyLittleScreen)}
                     clickable={true}
                     noArrow={true}
-                    offset={-100}
+                    // offset={0}
                     opacity={1}
                     delayHide={200}
                     disableStyleInjection={true}
@@ -159,11 +175,11 @@ const Header = () => {
                             {localStorage.getItem('admin') == undefined &&
                                 <Button buttonTheme={ButtonThemes.RED} className={cn(styles.littleRow, styles.redText)} onClick={handleGoToProfilePageClick}>
                                     <img src={Profile} />
-                                    Личный кабинет
+                                    Профиль
                                 </Button>}
-                            <Button buttonTheme={ButtonThemes.RED} className={cn(styles.littleRow, styles.redText)} onClick={handleExitClick}>
+                            <Button buttonTheme={ButtonThemes.BLACK} className={cn(styles.littleRow)} onClick={handleExitClick}>
                                 <img src={Exit} />
-                                Выйти из аккаунта
+                                Выйти
                             </Button>
                         </div>
                     </div>

@@ -14,7 +14,7 @@ const OrdersLog = (props: { orderList: Order[] }) => {
             </div>
             <div className={styles.orderListContainer}>
                 {props.orderList.length == 0
-                    ? <h3>История заявок пуста</h3>
+                    ? <h3 className={styles.emptyOrdersListMessage}>История заявок пуста</h3>
                     : props.orderList.map((order: Order, i: number) => (
                         <OrderCard order={order} key={i} />
                     ))}

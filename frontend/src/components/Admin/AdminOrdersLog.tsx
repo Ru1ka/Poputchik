@@ -19,8 +19,8 @@ const AdminOrdersLog = (props: { orderList: UserWithOrders[] }) => {
                     props.orderList.map((user: UserWithOrders) => (
                         <div key={'user-' + user.id} style={{ display: "flex", flexDirection: 'column', rowGap: 10 }}>
                             <h3>
-                                {`Пользователь: ${user.is_organization_account ? user.organization?.organization_name : user.name},
-                                Телефон: ${formatPhoneNumber(user.phone)}, Почта: ${user.email} `}
+                                {`Пользователь: ${user.is_organization_account ? user.organization?.organization_name : user.name};
+                                Телефон: ${formatPhoneNumber(user.phone)}; Почта: ${user.email} `}
                             </h3>
                             {
                                 user.orders.map((order: Order) => (

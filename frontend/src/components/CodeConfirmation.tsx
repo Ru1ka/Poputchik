@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import OtpInput from 'react-otp-input';
 import cn from "classnames"
 import styles from "./CodeConfirmation.module.css"
@@ -13,6 +13,7 @@ import fetchPostSendCode from '../fetch_functions/fetchPostSendCode';
 import { fetchPostVerifyOtpRegisterAsOrg, fetchPostVerifyOtpRegisterAsPhysical, fetchPostVerifyOtpSignIn } from '../fetch_functions/fetchPostVerifyOtp';
 import { useNavigate } from 'react-router-dom';
 import { ORDERS_PAGE } from '../router/paths';
+import { ModalContext } from './Modal/ModalContext';
 
 function CodeConfirmation(props: AuthFormStepProps) {
     const numInputs: number = 6;
@@ -27,6 +28,7 @@ function CodeConfirmation(props: AuthFormStepProps) {
     }
 
     const navigate = useNavigate();
+    const { closeModal } = useContext(ModalContext);
 
     const validateOtp = (otp: string) => {
 
@@ -38,7 +40,9 @@ function CodeConfirmation(props: AuthFormStepProps) {
                     localStorage.setItem('token', data.token);
                 })
                 .then(() => {
-                    navigate(ORDERS_PAGE, { replace: false });
+                    // navigate(ORDERS_PAGE, { replace: false });
+                    window.location.reload();
+                    closeModal();
                 })
         } else if (props.formData.is_organization_account) {
             // /api/auth/register/as_organization/verify_otp
@@ -52,7 +56,9 @@ function CodeConfirmation(props: AuthFormStepProps) {
                     }
                 })
                 .then(() => {
-                    navigate(ORDERS_PAGE, { replace: false });
+                    // navigate(ORDERS_PAGE, { replace: false });
+                    window.location.reload();
+                    closeModal();
                 })
         } else if (!props.formData.is_organization_account) {
             // /api/auth/register/as_physical/verify_otp
@@ -66,7 +72,9 @@ function CodeConfirmation(props: AuthFormStepProps) {
                     }
                 })
                 .then(() => {
-                    navigate(ORDERS_PAGE, { replace: false });
+                    // navigate(ORDERS_PAGE, { replace: false });
+                    window.location.reload();
+                    closeModal();
                 })
         }
     }
@@ -100,7 +108,7 @@ function CodeConfirmation(props: AuthFormStepProps) {
                 numInputs={numInputs}
                 inputType={'tel'}
                 inputStyle={cn(input_styles.input, input_styles.square)}
-                containerStyle={container_styles.gap_5}
+                containerStyle={styles.otpContainer}
                 shouldAutoFocus={true}
                 renderInput={(props) => <input {...props} style={{ textAlign: 'center' }} />}
             // renderInput={(props, i) => <input {...props} autoComplete={i == 0 ? "one-time-code" : ""} />}

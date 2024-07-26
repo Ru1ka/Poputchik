@@ -3,6 +3,9 @@ import styles from './CenteredFrame.module.css'
 import Button from '../UI/Button/Button'
 import { ButtonThemes } from '../UI/Button/ButtonTypes'
 import poputchikLogo from '../assets/icons/Logo_full.svg'
+import plus from '../assets/icons/addPointIcon.svg'
+import { useContext } from 'react'
+import { ModalContext } from './Modal/ModalContext'
 
 
 interface CenteredFrameProps {
@@ -12,15 +15,19 @@ interface CenteredFrameProps {
 }
 
 function CenteredFrame(props: CenteredFrameProps) {
-    return (
-        <div className={styles.centeredFrameWrapper}>
-            {props.showBackArrow &&
-                <Button buttonTheme={ButtonThemes.GO_BACK_ARROW} onClick={props.clickBackArrowHandler}>
-                    <img src={backArrow} />
-                </Button>
-            }
+    const { closeModal } = useContext(ModalContext);
 
-            <div className={styles.centeredFrame}>
+    return (
+        <div className={styles.centeredFrameWrapper} onClick={closeModal}>
+            <div className={styles.centeredFrame} onClick={(e) => e.stopPropagation()}>
+                {props.showBackArrow &&
+                    <Button buttonTheme={ButtonThemes.GO_BACK_ARROW} onClick={props.clickBackArrowHandler}>
+                        <img src={backArrow} />
+                    </Button>
+                }
+                <Button buttonTheme={ButtonThemes.CLOSE_MODAL} onClick={closeModal}>
+                    <img src={plus} />
+                </Button>
                 <img src={poputchikLogo} className={styles.logo} alt="Logo" />
                 {props.children}
             </div>

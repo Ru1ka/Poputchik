@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useContext } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import cn from 'classnames';
 import dayjs from 'dayjs';
@@ -44,7 +44,8 @@ import { ButtonThemes } from '../../UI/Button/ButtonTypes';
 import { InputThemes } from '../../UI/Input/InputTypes';
 
 import Order from '../../components/Orders/OrderModel';
-import { AUTH_PAGE, ORDERS_PAGE } from '../../router/paths';
+import { ModalContext } from '../../components/Modal/ModalContext';
+import { ORDERS_PAGE } from '../../router/paths';
 
 dayjs.extend(customParseFormat);
 
@@ -79,12 +80,15 @@ export default function OrderPage() {
 
   const mode = location.state?.mode || 'create';
 
+  const { openModal } = useContext(ModalContext);
+
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      navigate(AUTH_PAGE);
+    console.log('a')
+    if (localStorage.getItem('token') == undefined) {
+      openModal();
+      console.log('b')
     }
-  }, [navigate]);
+  }, [])
 
   useEffect(() => {
     if (mode === 'edit' || mode === 'repeat') {
