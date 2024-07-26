@@ -1,4 +1,4 @@
-import Order  from '../components/Orders/OrderModel';
+import Order from '../components/Orders/OrderModel';
 import { SERVER_ROUTE } from '../constants';
 
 const fetchCreateOrder = async (
@@ -6,17 +6,20 @@ const fetchCreateOrder = async (
   onLoadingCityValue: string, onLoadingValue: string, onLoadingPhoneValue: string,
   onUnloadingCityValue: string, onUnloadingValue: string, onUnloadingPhoneValue: string,
   temperatureCondition: boolean, distanceValue: number,
-  additionalLoadingPoints: { locality: string, address: string, phone: string }[]
+  additionalLoadingPoints: { locality: string, address: string, phone: string }[],
+  VAT: boolean, readableWeight: string
 ): Promise<Order> => {
   try {
     const requestBody = {
       cargo: cargoValue,
       cost: cost,
       weight: weightValue,
+      readable_weight: readableWeight,
       amount: amountValue,
       loading_time: date,
       distance: distanceValue,
       temperature_condition: temperatureCondition,
+      VAT: VAT,
       status: 'new',
       loading_points: [{
         locality: onLoadingCityValue,

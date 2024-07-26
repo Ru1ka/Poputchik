@@ -17,7 +17,9 @@ const fetchUpdateOrder = async (
   temperatureCondition: boolean,
   status: string,
   distanceValue: number,
-  additionalLoadingPoints: { locality: string, address: string, phone: string }[]
+  additionalLoadingPoints: { locality: string, address: string, phone: string }[],
+  VAT: boolean,
+  readableWeight: string
 ): Promise<Order> => {
   try {
     const requestBody = {
@@ -39,7 +41,9 @@ const fetchUpdateOrder = async (
         phone: onUnloadingPhoneValue
       }],
       temperature_condition: temperatureCondition,
-      status: status
+      status: status,
+      VAT: VAT,
+      readable_weight: readableWeight
     };
 
     const token = localStorage.getItem('token');

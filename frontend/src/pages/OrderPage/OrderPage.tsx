@@ -12,7 +12,6 @@ import VATDropdown from '../../components/OrderInputs/VATDropdown';
 import Cargo from '../../components/OrderInputs/Cargo';
 import City from '../../components/OrderInputs/City';
 import Address from '../../components/OrderInputs/Address';
-import PhoneInput from 'react-phone-input-2';
 import Button from '../../UI/Button/Button';
 import Input from '../../UI/Input/Input';
 import CustomPhoneInput from '../../UI/Input/CustomPhoneInput';
@@ -21,8 +20,6 @@ import Header from '../../components/Header/Header';
 import fetchGetDistance from '../../fetch_functions/fetchGetDistance';
 import fetchCreateOrder from '../../fetch_functions/fetchCreateOrder';
 import fetchUpdateOrder from '../../fetch_functions/fetchUpdateOrder';
-
-import { buttonStyle, containerStyle, inputStyle } from '../../components/PhoneInputStyling';
 
 import cargo_icon from '../../assets/icons/Cargo.svg';
 import weight_icon from '../../assets/icons/Weight.svg';
@@ -106,7 +103,7 @@ export default function OrderPage() {
       setDate(dayjs(order.created_at).format('DD.MM.YYYY'));
       setTime(dayjs(order.created_at).format('HH:mm'));
       setDistanceValue(Math.floor(order.distance / 1000));
-      setVatValue(order.cost ? 'с НДС' : 'без НДС');
+      setVatValue(order.VAT ? 'с НДС' : 'без НДС');
       setIsChecked(order.temperature_condition);
       setPrice(order.cost);
 
@@ -169,6 +166,7 @@ export default function OrderPage() {
       try {
         const isoDateString = getISODateString(date, time);
         const adjustedWeight = selectedUnit === 'т' ? weightValue! * 1000 : weightValue!;
+        const readableWeight = `${weightValue} ${selectedUnit}`;
 
         const additionalLoadingPoints = additionalBlocks.map(block => ({
           locality: block.city,
@@ -181,7 +179,7 @@ export default function OrderPage() {
             cargoValue, price, adjustedWeight, amountValue!, isoDateString,
             onLoadingCityValue, onLoadingValue, onLoadingPhoneValue,
             onUnloadingCityValue, onUnloadingValue, onUnloadingPhoneValue,
-            isChecked, distance!, additionalLoadingPoints
+            isChecked, distance!, additionalLoadingPoints, vatValue === 'с НДС', readableWeight
           );
           return orderDetails;
         } else {
@@ -192,7 +190,7 @@ export default function OrderPage() {
             id, cargoValue, price, adjustedWeight, amountValue!, isoDateString,
             onLoadingCityValue, onLoadingValue, onLoadingPhoneValue,
             onUnloadingCityValue, onUnloadingValue, onUnloadingPhoneValue,
-            isChecked, statusValue, distance!, additionalLoadingPoints
+            isChecked, statusValue, distance!, additionalLoadingPoints, vatValue === 'с НДС', readableWeight
           );
           return orderDetails;
         }
@@ -205,7 +203,7 @@ export default function OrderPage() {
   }, [
     cargoValue, weightValue, amountValue, date, price, time,
     onLoadingCityValue, onLoadingValue, onLoadingPhoneValue,
-    onUnloadingCityValue, onUnloadingValue, onUnloadingPhoneValue, isChecked, selectedUnit, location.state, mode, additionalBlocks
+    onUnloadingCityValue, onUnloadingValue, onUnloadingPhoneValue, isChecked, selectedUnit, location.state, mode, additionalBlocks, vatValue
   ]);
 
   const getISODateString = (date: string, time: string) => {
@@ -214,7 +212,7 @@ export default function OrderPage() {
       if (!dateTime.isValid()) {
         throw new Error('Invalid date or time format');
       }
-      const isoString = dateTime.format('YYYY-MM-DDTHH:mm:ss');
+      const isoString = dateTime.toISOString();
       return isoString;
     } catch (error) {
       console.error('Invalid date or time value:', error);
@@ -470,24 +468,10 @@ export default function OrderPage() {
                 <div className={styles.phone_block}>
                   <img src={phone_icon} alt='Телефон' className={icon_styles.add_order_icon} />
                   <div className={styles.phone_input}>
-                    <PhoneInput
-                      inputClass={input_styles.phone_input}
-                      country={'ru'}
-                      onlyCountries={['ru']}
-                      disableDropdown
-                      disableSearchIcon={true}
+                    <CustomPhoneInput
                       value={block.phone}
                       onChange={(phone) => handleBlockChange(index, 'phone', phone)}
-                      countryCodeEditable={false}
-                      placeholder={'+7 (999) 999-99-99'}
-                      containerStyle={containerStyle}
-                      buttonStyle={buttonStyle}
-                      inputStyle={inputStyle}
-                      inputProps={{
-                        name: 'phone',
-                        required: true,
-                        autoFocus: true
-                      }}
+                      phone={''}
                     />
                   </div>
                 </div>
@@ -513,24 +497,10 @@ export default function OrderPage() {
               <div className={styles.phone_block}>
                 <img src={phone_icon} alt='Телефон' className={icon_styles.add_order_icon} />
                 <div className={styles.phone_input}>
-                  <PhoneInput
-                    inputClass={input_styles.phone_input}
-                    country={'ru'}
-                    onlyCountries={['ru']}
-                    disableDropdown
-                    disableSearchIcon={true}
-                    countryCodeEditable={false}
+                  <CustomPhoneInput
                     value={onUnloadingPhoneValue}
                     onChange={handleUnloadingPhoneChange}
-                    placeholder={'+7 (999) 999-99-99'}
-                    containerStyle={containerStyle}
-                    buttonStyle={buttonStyle}
-                    inputStyle={inputStyle}
-                    inputProps={{
-                      name: 'phone',
-                      required: true,
-                      autoFocus: true
-                    }}
+                    phone={''}
                   />
                 </div>
               </div>

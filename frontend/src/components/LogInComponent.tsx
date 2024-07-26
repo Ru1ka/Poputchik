@@ -31,6 +31,7 @@ function LogInComponent(props: LogInComponentProps) {
             {props.typeOfLogin == "phone" ?
                 <CustomPhoneInput
                     phone={props.formData.phone}
+                    value={props.formData.phone}
                     // onChange={(phone: string) => { props.handleInputChange('phone', phone) }}
                     onChange={(phone: string) => { props.handleInputChange('phone', phone) }}
                     autoFocus />

@@ -27,6 +27,7 @@ interface Order {
     status: OrderStatus;
     loading_points: LoadingPoint[];
     unloading_points: LoadingPoint[];
+    VAT: boolean
 }
 
 export enum OrderStatus {
