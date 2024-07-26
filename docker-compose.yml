@@ -1,14 +1,14 @@
 services:
-  # web:
-  #   build:
-  #     context: ./frontend
-  #   container_name: web
-  #   networks:
-  #     - app-network
-  #   ports:
-  #     - "${FRONTEND_PORT}:${FRONTEND_PORT}"
-  #   env_file:
-  #     - .env
+  web:
+    build:
+      context: ./frontend
+    container_name: web
+    networks:
+      - app-network
+    ports:
+      - "${FRONTEND_PORT}:${FRONTEND_PORT}"
+    env_file:
+      - .env
 
   server:
     build:
