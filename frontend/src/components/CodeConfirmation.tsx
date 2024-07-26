@@ -11,8 +11,6 @@ import { AuthFormStepProps } from './Forms/AuthForm/AuthForm';
 import { formatPhoneNumber } from './GoToRegistration';
 import fetchPostSendCode from '../fetch_functions/fetchPostSendCode';
 import { fetchPostVerifyOtpRegisterAsOrg, fetchPostVerifyOtpRegisterAsPhysical, fetchPostVerifyOtpSignIn } from '../fetch_functions/fetchPostVerifyOtp';
-import { useNavigate } from 'react-router-dom';
-import { ORDERS_PAGE } from '../router/paths';
 import { ModalContext } from './Modal/ModalContext';
 
 function CodeConfirmation(props: AuthFormStepProps) {
@@ -27,7 +25,6 @@ function CodeConfirmation(props: AuthFormStepProps) {
         }
     }
 
-    const navigate = useNavigate();
     const { closeModal } = useContext(ModalContext);
 
     const validateOtp = (otp: string) => {
