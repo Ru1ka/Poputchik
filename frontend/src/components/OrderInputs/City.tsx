@@ -27,12 +27,24 @@ const City: React.FC<CityProps> = ({ value, onChange }) => {
     setInputValue(value);
   }, [value]);
 
-  const capitalizeFirstLetter = (value: string) => {
-    return value.charAt(0).toUpperCase() + value.slice(1);
+  const capitalizeAfterSpace = (value: string) => {
+    return value
+      .split(' ')
+      .map(part =>
+        part
+          .split('-')
+          .map((subPart, index) =>
+            index === 0
+              ? subPart.charAt(0).toUpperCase() + subPart.slice(1).toLowerCase()
+              : subPart.charAt(0) + subPart.slice(1).toLowerCase()
+          )
+          .join('-')
+      )
+      .join(' ');
   };
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const newValue = capitalizeFirstLetter(event.target.value);
+    const newValue = capitalizeAfterSpace(event.target.value);
     setInputValue(newValue);
     onChange(newValue);
   };
