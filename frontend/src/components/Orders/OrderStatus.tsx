@@ -16,7 +16,7 @@ const OrderStatusElement = (props: { status: string }) => {
             <img src={On_the_way} className={cn(styles.img, (props.status == "Transit" ? styles.active : styles.inactive))} />
             <img src={props.status == "Transit" ? Dashed_line : Line} className={cn(styles.line, (props.status == "Transit" ? styles.active : styles.inactive))} />
             <img src={Flag} className={cn(styles.img, styles.inactive)} />
-            <div className="hint">{props.status == "Delivered" ? "Заявка завершена": "Заявка принята"}</div>
+            <div className="hint">{props.status == "Delivered" ? "Заявка завершена": (props.status == "Transit" ? "В пути" : "Заявка принята")}</div>
         </div>
     )
 }
