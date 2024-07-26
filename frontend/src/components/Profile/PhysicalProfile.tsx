@@ -21,6 +21,7 @@ const PhysicalProfile = (props: { userInfo: UserInfo, handleInputChange: (name: 
             <div className={styles.inputContainer}>
                 <h3>Номер телефона</h3>
                 <CustomPhoneInput
+                    value={''}
                     phone={props.userInfo.phone}
                     onChange={(phone: string) => { props.handleInputChange('phone', phone)}} />
             </div>
