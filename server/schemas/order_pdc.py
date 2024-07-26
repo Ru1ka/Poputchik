@@ -33,8 +33,10 @@ class CreateOrder(BaseModel):
     loading_points: list[Point]
     unloading_points: list[Point]
     weight: float = Field(..., gt=0, example=10)
+    readable_weight: str = Field(None, example="10kg")
     amount: float = Field(..., gt=0, example=10)
     temperature_condition: bool
+    VAT: bool
 
 
 class OrderCostReturn(BaseModel):

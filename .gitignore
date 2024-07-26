@@ -12,7 +12,7 @@ pgadmin.key
 node_modules
 package-lock.json
 .log
-
+/telegram
 # DEFAUL PYTHON .gitignore:
 # Byte-compiled / optimized / DLL files
 __pycache__/
