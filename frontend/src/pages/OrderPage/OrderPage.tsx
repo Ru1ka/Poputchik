@@ -73,6 +73,7 @@ export default function OrderPage() {
   const [isChecked, setIsChecked] = useState<boolean>(false);
   const [price, setPrice] = useState<number>(0);
   const [additionalBlocks, setAdditionalBlocks] = useState<AdditionalBlock[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(false); // New state for loading indicator
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -304,8 +305,10 @@ export default function OrderPage() {
 
   const handleOrderSubmit = async () => {
     if (!isButtonDisabled) {
+      setIsLoading(true);
       const distanceData = await fetchDistance();
       const orderDetails = await fetchOrderDetailsCallback(distanceData?.distance ?? null);
+      setIsLoading(false);
       if (orderDetails) {
         navigate(ORDERS_PAGE, { state: { newOrder: orderDetails } });
       }
@@ -314,8 +317,10 @@ export default function OrderPage() {
 
   const handleSaveChanges = async () => {
     if (!isButtonDisabled) {
+      setIsLoading(true);
       const distanceData = await fetchDistance();
       const orderDetails = await fetchOrderDetailsCallback(distanceData?.distance ?? null);
+      setIsLoading(false);
       if (orderDetails) {
         navigate(ORDERS_PAGE, { state: { updatedOrder: orderDetails } });
       }
@@ -639,10 +644,14 @@ export default function OrderPage() {
           <Button
             buttonTheme={ButtonThemes.RED_FILLED}
             className={cn(button_styles.button, button_styles.button_width300px)}
-            disabled={isButtonDisabled}
+            disabled={isButtonDisabled || isLoading}
             onClick={mode === 'edit' ? handleSaveChanges : handleOrderSubmit}
           >
-            {mode === 'edit' ? 'Сохранить изменения' : 'Оформить заявку'}
+            {isLoading ? (
+              <span className={button_styles.loader}></span>
+            ) : (
+              mode === 'edit' ? 'Сохранить изменения' : 'Оформить заявку'
+            )}
           </Button>
         </div>
       </div>
