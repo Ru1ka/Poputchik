@@ -25,16 +25,16 @@ services:
     depends_on:
       - db
 
-  telegram_bot:
-    build:
-      context: ./telegram
-    container_name: telegram_bot
-    networks:
-      - app-network
-    env_file:
-      - .env
-    volumes:
-      - ./telegram:/app
+  # telegram_bot:
+  #   build:
+  #     context: ./telegram
+  #   container_name: telegram_bot
+  #   networks:
+  #     - app-network
+  #   env_file:
+  #     - .env
+  #   volumes:
+  #     - ./telegram:/app
 
   nginx:
     image: nginx:latest
