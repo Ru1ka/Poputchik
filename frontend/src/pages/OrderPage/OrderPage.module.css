@@ -1,6 +1,7 @@
 .order_page {
     display: flex;
-    column-gap: var(--spacing-2xl)
+    column-gap: var(--spacing-2xl);
+    margin-bottom: var(--spacing-5xl);
 }
 
 .weight_group_input, .weight_input{
@@ -149,6 +150,10 @@
 }
 
 @media (max-width: 940px) {
+    .order_page{
+        margin-bottom: var(--spacing-2xl);
+    }
+    
     .place_block > img{
         position: absolute;
         right: -30px;
