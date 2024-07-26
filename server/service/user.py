@@ -21,9 +21,6 @@ from settings import settings
 
 class UserService:
     smsaero = SmsAero(settings().SMSAERO_EMAIL, settings().SMSAERO_API_KEY)
-    smtp_server = \
-        smtplib.SMTP_SSL(settings().SMTP_SERVER, settings().SMTP_PORT)
-    smtp_server.login(settings().SMTP_USER, settings().SMTP_PASSWORD)
 
     def __init__(self, session: Session = Depends(get_session)):
         self.session = session
@@ -127,13 +124,15 @@ class UserService:
         else:
             if settings().SMTP_ENABLE:
                 try:
+                    smtp_server = smtplib.SMTP_SSL(settings().SMTP_SERVER, settings().SMTP_PORT)
+                    smtp_server.login(settings().SMTP_USER, settings().SMTP_PASSWORD)
                     msg = MIMEMultipart()
                     msg['From'] = formataddr((str(Header("Попутчик", 'utf-8')), settings().SMTP_USER))
                     msg['To'] = totp_contact
                     msg['Subject'] = f"Код авторизации putchik.ru - {otp}"
                     msg.attach(MIMEText(f"Код авторизации putchik.ru - {otp}", 'plain'))
                     text = msg.as_string()
-                    self.smtp_server.sendmail(settings().SMTP_USER, totp_contact, text)
+                    smtp_server.sendmail(settings().SMTP_USER, totp_contact, text)
                 except Exception as err:
                     logging.error(f"Failed to send email: {err}")
                     # TODO: 500 -> 503
