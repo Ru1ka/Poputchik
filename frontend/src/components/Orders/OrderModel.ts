@@ -22,6 +22,7 @@ interface Order {
     distance: number;
     weight: number;
     amount: number;
+    loading_time: string;
     temperature_condition: boolean;
     // Created -> Transit -> Delivered
     status: OrderStatus;

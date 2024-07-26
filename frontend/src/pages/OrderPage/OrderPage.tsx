@@ -44,7 +44,7 @@ import { ButtonThemes } from '../../UI/Button/ButtonTypes';
 import { InputThemes } from '../../UI/Input/InputTypes';
 
 import Order from '../../components/Orders/OrderModel';
-import { AUTH_PAGE } from '../../router/paths';
+import { AUTH_PAGE, ORDERS_PAGE } from '../../router/paths';
 
 dayjs.extend(customParseFormat);
 
@@ -100,8 +100,8 @@ export default function OrderPage() {
       setWeightValue(order.weight > 1000 ? order.weight / 1000 : order.weight);
       setOnLoadingCityValue(order.loading_points[0].locality);
       setUnloadingCityValue(order.unloading_points[0].locality);
-      setDate(dayjs(order.created_at).format('DD.MM.YYYY'));
-      setTime(dayjs(order.created_at).format('HH:mm'));
+      setDate(dayjs(order.loading_time).format('DD.MM.YYYY'));
+      setTime(dayjs(order.loading_time).format('HH:mm'));
       setDistanceValue(Math.floor(order.distance / 1000));
       setVatValue(order.VAT ? 'с НДС' : 'без НДС');
       setIsChecked(order.temperature_condition);
@@ -167,7 +167,6 @@ export default function OrderPage() {
         const isoDateString = getISODateString(date, time);
         const adjustedWeight = selectedUnit === 'т' ? weightValue! * 1000 : weightValue!;
         const readableWeight = `${weightValue} ${selectedUnit}`;
-
         const additionalLoadingPoints = additionalBlocks.map(block => ({
           locality: block.city,
           address: block.address,
@@ -208,11 +207,16 @@ export default function OrderPage() {
 
   const getISODateString = (date: string, time: string) => {
     try {
-      const dateTime = dayjs(`${date} ${time}`, 'DD.MM.YYYY HH:mm');
+      const dateTimeString = `${date} ${time}`;
+      const dateTime = dayjs(dateTimeString, 'DD.MM.YYYY HH:mm');
+
       if (!dateTime.isValid()) {
         throw new Error('Invalid date or time format');
       }
-      const isoString = dateTime.toISOString();
+
+      const localDate = dateTime.toDate();
+      const utcDate = new Date(localDate.getTime() - localDate.getTimezoneOffset() * 60000);
+      const isoString = utcDate.toISOString();
       return isoString;
     } catch (error) {
       console.error('Invalid date or time value:', error);
@@ -244,7 +248,7 @@ export default function OrderPage() {
   };
 
   const handleVATChange = (value: string) => {
-    setVatValue(value);
+    setVatValue(value === 'с НДС' ? 'с НДС' : 'без НДС');
   };
 
   const formatOutput = () => {
@@ -285,7 +289,7 @@ export default function OrderPage() {
     const checkInputs = () => {
       return cargoValue && weightValue !== null && selectedUnit && amountValue !== null && date.length === 10 && time.length === 5 &&
         onLoadingCityValue && onLoadingValue && isPhoneNumberValid(onLoadingPhoneValue) &&
-        onUnloadingCityValue && onUnloadingValue && isPhoneNumberValid(onUnloadingPhoneValue) && vatValue;
+        onUnloadingCityValue && onUnloadingValue && isPhoneNumberValid(onUnloadingPhoneValue) && vatValue !== null;
     };
 
     const checkPreview = () => {
@@ -303,7 +307,7 @@ export default function OrderPage() {
       const distanceData = await fetchDistance();
       const orderDetails = await fetchOrderDetailsCallback(distanceData?.distance ?? null);
       if (orderDetails) {
-        navigate('/orders', { state: { newOrder: orderDetails } });
+        navigate(ORDERS_PAGE, { state: { newOrder: orderDetails } });
       }
     }
   };
@@ -313,7 +317,7 @@ export default function OrderPage() {
       const distanceData = await fetchDistance();
       const orderDetails = await fetchOrderDetailsCallback(distanceData?.distance ?? null);
       if (orderDetails) {
-        navigate('/orders', { state: { updatedOrder: orderDetails } });
+        navigate(ORDERS_PAGE, { state: { updatedOrder: orderDetails } });
       }
     }
   };
@@ -426,7 +430,7 @@ export default function OrderPage() {
                   <CustomPhoneInput
                     value={onLoadingPhoneValue}
                     onChange={handleLoadingPhoneChange}
-                    phone={''}
+                    phone={onLoadingPhoneValue}
                   />
                 </div>
               </div>
@@ -471,7 +475,7 @@ export default function OrderPage() {
                     <CustomPhoneInput
                       value={block.phone}
                       onChange={(phone) => handleBlockChange(index, 'phone', phone)}
-                      phone={''}
+                      phone={block.phone}
                     />
                   </div>
                 </div>
@@ -500,7 +504,7 @@ export default function OrderPage() {
                   <CustomPhoneInput
                     value={onUnloadingPhoneValue}
                     onChange={handleUnloadingPhoneChange}
-                    phone={''}
+                    phone={onUnloadingPhoneValue}
                   />
                 </div>
               </div>
