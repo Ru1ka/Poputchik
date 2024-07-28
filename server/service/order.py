@@ -180,6 +180,8 @@ class OrderService:
                 "customer_phone": user.phone,
                 "customer_email": user.email,
                 "cargo": new_order.cargo,
+                "weight": new_order.weight,
+
                 "created_at": new_order.created_at.strftime("%d-%m-%Y %H:%M:%S"),
                 "loading_time": new_order.loading_time.strftime("%d-%m-%Y %H:%M"),
 
