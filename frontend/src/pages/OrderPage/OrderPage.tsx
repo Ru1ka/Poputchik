@@ -67,14 +67,15 @@ export default function OrderPage() {
   const [onUnloadingCityValue, setUnloadingCityValue] = useState<string>('');
   const [date, setDate] = useState<string>('');
   const [time, setTime] = useState<string>('');
+  const [createdAt, setCreatedAt] = useState<string>(dayjs().add(3, 'hour').format('DD.MM.YYYY HH:mm')); // Initialize created_at with 3 hours added
   const [weightValue, setWeightValue] = useState<number | null>(null);
   const [distanceValue, setDistanceValue] = useState<number | null>(null);
   const [isButtonDisabled, setIsButtonDisabled] = useState<boolean>(true);
-  const [vatValue, setVatValue] = useState<string>('с НДС');
+  const [vatValue, setVatValue] = useState<boolean>(true); // Change to boolean
   const [isChecked, setIsChecked] = useState<boolean>(false);
   const [price, setPrice] = useState<number>(0);
   const [additionalBlocks, setAdditionalBlocks] = useState<AdditionalBlock[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(false); // New state for loading indicator
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -84,12 +85,10 @@ export default function OrderPage() {
   const { openModal } = useContext(ModalContext);
 
   useEffect(() => {
-    console.log('a')
     if (localStorage.getItem('token') == undefined) {
       openModal();
-      console.log('b')
     }
-  }, [])
+  }, [openModal]);
 
   useEffect(() => {
     if (mode === 'edit' || mode === 'repeat') {
@@ -107,8 +106,9 @@ export default function OrderPage() {
       setUnloadingCityValue(order.unloading_points[0].locality);
       setDate(dayjs(order.loading_time).format('DD.MM.YYYY'));
       setTime(dayjs(order.loading_time).format('HH:mm'));
+      setCreatedAt(dayjs(order.created_at).add(3, 'hour').format('DD.MM.YYYY HH:mm')); // Set created_at from order data and add 3 hours
       setDistanceValue(Math.floor(order.distance / 1000));
-      setVatValue(order.VAT ? 'с НДС' : 'без НДС');
+      setVatValue(order.VAT); // Set VAT as boolean
       setIsChecked(order.temperature_condition);
       setPrice(order.cost);
 
@@ -128,7 +128,6 @@ export default function OrderPage() {
           onUnloadingCityValue, onUnloadingValue, onUnloadingPhoneValue
         );
 
-        console.log('Distance data:', distanceData);
         setDistanceValue(Math.floor(distanceData.distance / 1000));
         return distanceData;
       } catch (error) {
@@ -169,7 +168,8 @@ export default function OrderPage() {
   const fetchOrderDetailsCallback = useCallback(async (distance: number | null) => {
     if (onLoadingCityValue && onLoadingValue && onUnloadingCityValue && onUnloadingValue) {
       try {
-        const isoDateString = getISODateString(date, time);
+        const isoLoadingTime = getISODateString(date, time);
+        const isoCreatedAt = getISODateStringFromCreatedAt(createdAt); // Adjusting createdAt to ISO string
         const adjustedWeight = selectedUnit === 'т' ? weightValue! * 1000 : weightValue!;
         const readableWeight = `${weightValue} ${selectedUnit}`;
         const additionalLoadingPoints = additionalBlocks.map(block => ({
@@ -180,10 +180,10 @@ export default function OrderPage() {
 
         if (mode === 'create' || mode === 'repeat') {
           const orderDetails = await fetchCreateOrder(
-            cargoValue, price, adjustedWeight, amountValue!, isoDateString,
+            cargoValue, price, adjustedWeight, amountValue!, isoLoadingTime, isoCreatedAt,
             onLoadingCityValue, onLoadingValue, onLoadingPhoneValue,
             onUnloadingCityValue, onUnloadingValue, onUnloadingPhoneValue,
-            isChecked, distance!, additionalLoadingPoints, vatValue === 'с НДС', readableWeight
+            isChecked, distance!, additionalLoadingPoints, vatValue, readableWeight // Pass VAT as boolean
           );
           return orderDetails;
         } else {
@@ -191,10 +191,10 @@ export default function OrderPage() {
           const statusValue = location.state?.order?.status ?? 'new';
 
           const orderDetails = await fetchUpdateOrder(
-            id, cargoValue, price, adjustedWeight, amountValue!, isoDateString,
+            id, cargoValue, price, adjustedWeight, amountValue!, isoLoadingTime, isoCreatedAt,
             onLoadingCityValue, onLoadingValue, onLoadingPhoneValue,
             onUnloadingCityValue, onUnloadingValue, onUnloadingPhoneValue,
-            isChecked, statusValue, distance!, additionalLoadingPoints, vatValue === 'с НДС', readableWeight
+            isChecked, statusValue, distance!, additionalLoadingPoints, vatValue, readableWeight // Pass VAT as boolean
           );
           return orderDetails;
         }
@@ -205,7 +205,7 @@ export default function OrderPage() {
     }
     return null;
   }, [
-    cargoValue, weightValue, amountValue, date, price, time,
+    cargoValue, weightValue, amountValue, date, price, time, createdAt,
     onLoadingCityValue, onLoadingValue, onLoadingPhoneValue,
     onUnloadingCityValue, onUnloadingValue, onUnloadingPhoneValue, isChecked, selectedUnit, location.state, mode, additionalBlocks, vatValue
   ]);
@@ -225,6 +225,17 @@ export default function OrderPage() {
       return isoString;
     } catch (error) {
       console.error('Invalid date or time value:', error);
+      return '';
+    }
+  };
+
+  const getISODateStringFromCreatedAt = (createdAt: string) => {
+    try {
+      const dateTime = dayjs(createdAt, 'DD.MM.YYYY HH:mm').toDate();
+      const isoString = new Date(dateTime.getTime() - dateTime.getTimezoneOffset() * 60000).toISOString();
+      return isoString;
+    } catch (error) {
+      console.error('Invalid createdAt value:', error);
       return '';
     }
   };
@@ -253,7 +264,8 @@ export default function OrderPage() {
   };
 
   const handleVATChange = (value: string) => {
-    setVatValue(value === 'с НДС' ? 'с НДС' : 'без НДС');
+    const newVatValue = value === 'с НДС';
+    setVatValue(newVatValue);
   };
 
   const formatOutput = () => {
@@ -294,7 +306,7 @@ export default function OrderPage() {
     const checkInputs = () => {
       return cargoValue && weightValue !== null && selectedUnit && amountValue !== null && date.length === 10 && time.length === 5 &&
         onLoadingCityValue && onLoadingValue && isPhoneNumberValid(onLoadingPhoneValue) &&
-        onUnloadingCityValue && onUnloadingValue && isPhoneNumberValid(onUnloadingPhoneValue) && vatValue !== null;
+        onUnloadingCityValue && onUnloadingValue && isPhoneNumberValid(onUnloadingPhoneValue);
     };
 
     const checkPreview = () => {
@@ -305,7 +317,7 @@ export default function OrderPage() {
 
     const shouldDisableButton = !checkInputs() || !checkPreview();
     setIsButtonDisabled(shouldDisableButton);
-  }, [cargoValue, weightValue, selectedUnit, amountValue, date, time, onLoadingCityValue, onLoadingValue, onLoadingPhoneValue, onUnloadingCityValue, onUnloadingValue, onUnloadingPhoneValue, distanceValue, vatValue]);
+  }, [cargoValue, weightValue, selectedUnit, amountValue, date, time, onLoadingCityValue, onLoadingValue, onLoadingPhoneValue, onUnloadingCityValue, onUnloadingValue, onUnloadingPhoneValue, distanceValue]);
 
   const handleOrderSubmit = async () => {
     if (!isButtonDisabled) {
@@ -520,7 +532,7 @@ export default function OrderPage() {
             </div>
             <VATDropdown
               id='vat_type'
-              value={vatValue}
+              value={vatValue ? 'с НДС' : 'без НДС'}
               onChange={handleVATChange}
               options={[
                 { label: 'с НДС', value: 'с НДС' },
@@ -589,7 +601,7 @@ export default function OrderPage() {
               <div className={styles.order_preview_element_info}>
                 {onLoadingCityValue && onLoadingValue ? <img src={point_icon} className={icon_styles.add_order_icon}></img> : <img src={point_icon} className={icon_styles.preview_order_icon}></img>}
                 <div className={styles.order_preview_element_place}>
-                  <p style={{ color: onLoadingCityValue ? 'black' : 'var(--inactive-text-color)' }}>
+                  <p style={{ color: onLoadingCityValue ? 'black' : 'var(--inactive-text-color)', maxWidth: '300px', whiteSpace: 'normal', flexWrap: 'wrap', wordBreak: 'break-word'}}>
                     {onLoadingCityValue ? onLoadingCityValue : 'Нет данных'}
                   </p>
                   <p className={styles.order_preview_address_text}>
@@ -615,7 +627,7 @@ export default function OrderPage() {
               <div className={styles.order_preview_element_info}>
                 {onUnloadingCityValue && onUnloadingValue ? <img src={point_icon} className={icon_styles.title_icon}></img> : <img src={point_icon} className={icon_styles.preview_order_icon}></img>}
                 <div className={styles.order_preview_element_place}>
-                  <p style={{ color: onUnloadingCityValue ? 'black' : 'var(--inactive-text-color)' }}>
+                  <p style={{ color: onUnloadingCityValue ? 'black' : 'var(--inactive-text-color)', maxWidth: '300px', whiteSpace: 'normal', flexWrap: 'wrap'  }}>
                     {onUnloadingCityValue ? onUnloadingCityValue : 'Нет данных'}
                   </p>
                   <p className={styles.order_preview_address_text}>

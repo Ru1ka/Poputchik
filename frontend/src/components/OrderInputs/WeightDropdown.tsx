@@ -14,6 +14,7 @@ interface IDropdown {
   value?: string;
   onChange: (value: string) => void;
   id?: string;
+  width?: string; // Added width prop
 }
 
 const Dropdown = ({
@@ -23,7 +24,8 @@ const Dropdown = ({
   options,
   id,
   onChange,
-  value
+  value,
+  width
 }: IDropdown) => {
   const [dropdown, setDropdown] = useState<boolean | null>(null);
   const [selected, setSelected] = useState<OptionType | null>(
@@ -64,7 +66,7 @@ const Dropdown = ({
   };
 
   return (
-    <div ref={ref} className={weight_styles.weight_type_input}>
+    <div ref={ref} className={weight_styles.weight_type_input} style={{ width }}>
       <button
         role="combobox"
         aria-expanded={dropdown ? dropdown : false}

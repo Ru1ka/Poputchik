@@ -15,11 +15,11 @@ button{
 
 .vat_li{
     padding-left: var(--spacing-input);
-    background: var(--inactive-and-outline-color);
+    background: #fff;
 }
 
 .vat_li:hover{
-    background: #fff;
+    background: var(--inactive-and-outline-color);
     transition: .25s;
 }
 
@@ -47,6 +47,7 @@ li{
     width: 123px;
     z-index: 1000;
     background-color: white;
+    border: 1px solid #ccc;
 }
 
 .vat_type_input{

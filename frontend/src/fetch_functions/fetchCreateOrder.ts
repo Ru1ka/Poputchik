@@ -2,7 +2,7 @@ import Order from '../components/Orders/OrderModel';
 import { SERVER_ROUTE } from '../constants';
 
 const fetchCreateOrder = async (
-  cargoValue: string, cost: number, weightValue: number, amountValue: number, date: string,
+  cargoValue: string, cost: number, weightValue: number, amountValue: number, loadingTime: string, createdAt: string,
   onLoadingCityValue: string, onLoadingValue: string, onLoadingPhoneValue: string,
   onUnloadingCityValue: string, onUnloadingValue: string, onUnloadingPhoneValue: string,
   temperatureCondition: boolean, distanceValue: number,
@@ -16,7 +16,8 @@ const fetchCreateOrder = async (
       weight: weightValue,
       readable_weight: readableWeight,
       amount: amountValue,
-      loading_time: date,
+      loading_time: loadingTime,
+      created_at: createdAt,
       distance: distanceValue,
       temperature_condition: temperatureCondition,
       VAT: VAT,

@@ -128,6 +128,10 @@
     font-size: var(--font-size-main-and-input-text);
 }
 
+.redText:hover{
+    cursor: pointer;
+}
+
 .redContainer {
     background-color: var(--active-red-color);
     font-weight: 500;

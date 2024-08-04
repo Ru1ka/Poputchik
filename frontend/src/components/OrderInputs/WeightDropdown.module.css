@@ -14,11 +14,11 @@ button{
 }
 .weight_li{
     padding-left: var(--spacing-input);
-    background: var(--inactive-and-outline-color);
+    background: #fff;
 }
 
 .weight_li:hover{
-    background: #fff;
+    background: var(--inactive-and-outline-color);
     transition: .25s;
 }
 
@@ -35,6 +35,7 @@ li{
     position: absolute;
     width: 79px;
     z-index: 1000;
+    border: 1px solid #ccc;
     background-color: white;
 }
 

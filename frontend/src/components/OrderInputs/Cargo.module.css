@@ -1,10 +1,31 @@
-@import url(../../theme.css);
-
-.container{
+/* Cargo.module.css */
+.container {
+    position: relative;
     display: flex;
     align-items: center;
-}
-
-.container > img{
-    margin-right: var(--spacing-m);
-}
+    column-gap: var(--spacing-m);
+  }
+  
+  .dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background-color: white;
+    border: 1px solid #ccc;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 1000;
+  }
+  
+  .dropdown_item {
+    padding: var(--spacing-l);
+    cursor: pointer;
+    font-size: var(--font-size-additional-text);
+    font-weight: 600;
+  }
+  
+  .dropdown_item:hover {
+    background-color: #f0f0f0;
+  }
+  

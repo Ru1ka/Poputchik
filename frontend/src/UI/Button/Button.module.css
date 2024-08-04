@@ -14,7 +14,7 @@
     transition: all 0.5s;
 }
 
-.button_width300px{
+.button_width300px {
     width: 300px !important; 
 }
 
@@ -84,23 +84,20 @@
 }
 
 .loader {
-    border: 2px solid transparent;
+    display: block;
+    border: 4px solid rgba(255, 255, 255, 0.3);
     border-radius: 50%;
-    border-top: 2px solid #ffffff;
-    width: 32px;
-    height: 32px;
-    animation: spin 1s linear infinite;
-    margin: 0 auto;
-  }
-  
-  @keyframes spin {
-    0%, 100% {
-      transform: scale(1);
-    }
-    50% {
-      transform: rotate(2);
-    }
-  }
+    border-top: 4px solid #ffffff;
+    width: 16px;
+    height: 16px;
+    animation: spin .75s linear infinite;
+    margin: auto;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
 
 .close {
     position: absolute;

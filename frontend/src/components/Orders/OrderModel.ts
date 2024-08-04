@@ -15,6 +15,7 @@ export interface OrderResponse {
 interface Order {
     id: number;
     readable_id: string;
+    readable_weight: string;
     customer_id: number;
     cargo: string;
     created_at: string; // Date string in ISO 8601 format

@@ -6,7 +6,7 @@ import cn from 'classnames';
 
 const Input = ({ inputTheme, errorMessage, isValid, ...props }: InputPropsType) => {
     return (
-        <div className={cn(container_styles.flex_col, container_styles.gap_5)}>
+        <div className={container_styles.flex_col}>
             <input
                 {...props}
                 className={cn(styles.input, styles[inputTheme])}

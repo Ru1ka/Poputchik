@@ -1,5 +1,4 @@
-import { useState, useEffect } from 'react';
-
+import { useState, useEffect, useRef } from 'react';
 import icon_styles from "../../icon_styles.module.css";
 import input_styles from "../../UI/Input/Input.module.css";
 import cargo_styles from "./Cargo.module.css";
@@ -17,10 +16,14 @@ interface CargoProps {
 
 function Cargo({ value, onChange }: CargoProps) {
   const [dataList, setDataList] = useState<string[]>([]);
+  const [filteredDataList, setFilteredDataList] = useState<string[]>([]);
+  const [isDropdownVisible, setIsDropdownVisible] = useState<boolean>(false);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const extractedData = jsonData.map((item: { name: string }) => item.name);
     setDataList(extractedData);
+    setFilteredDataList(extractedData);
   }, []);
 
   const capitalizeFirstLetter = (value: string) => {
@@ -30,10 +33,23 @@ function Cargo({ value, onChange }: CargoProps) {
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = capitalizeFirstLetter(event.target.value);
     onChange(newValue);
+
+    const filteredList = dataList.filter(item => 
+      item.toLowerCase().includes(newValue.toLowerCase())
+    );
+    setFilteredDataList(filteredList);
+    setIsDropdownVisible(true);
   };
 
   const clearInput = () => {
     onChange('');
+    setFilteredDataList(dataList);
+    setIsDropdownVisible(false);
+  };
+
+  const handleItemClick = (item: string) => {
+    onChange(item);
+    setIsDropdownVisible(false);
   };
 
   return (
@@ -41,11 +57,17 @@ function Cargo({ value, onChange }: CargoProps) {
       <img src={icon} alt="Груз" className={icon_styles.add_order_icon} />
       <div style={{ position: 'relative', display: 'inline-block' }}>
         <input
-          list="cargo-list"
+          ref={inputRef}
           value={value}
           onChange={handleInputChange}
           placeholder="Груз"
           className={input_styles.input}
+          onFocus={() => setIsDropdownVisible(true)}
+          onBlur={() => {
+            setTimeout(() => {
+              setIsDropdownVisible(false);
+            }, 100);
+          }}
         />
         {value && (
           <img
@@ -62,11 +84,19 @@ function Cargo({ value, onChange }: CargoProps) {
             className={icon_styles.input_icon}
           />
         )}
-        <datalist id="cargo-list">
-          {dataList.map((item, index) => (
-            <option key={index} value={item} />
-          ))}
-        </datalist>
+        {isDropdownVisible && (
+          <div className={cargo_styles.dropdown}>
+            {filteredDataList.map((item, index) => (
+              <div 
+                key={index}
+                className={cargo_styles.dropdown_item}
+                onMouseDown={() => handleItemClick(item)}
+              >
+                {item}
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
