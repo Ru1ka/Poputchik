@@ -59,3 +59,4 @@ class UpdateOrder(BaseModel):
     status: str = None
     loading_points: list[Point] = None
     unloading_points: list[Point] = None
+    VAT: bool

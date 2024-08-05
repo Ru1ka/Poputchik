@@ -224,6 +224,8 @@ class OrderService:
             order.amount = data["amount"]
         if "temperature_condition" in data:
             order.temperature_condition = data["temperature_condition"]
+        if "VAT" in data:
+            order.VAT = data["VAT"]
         if "status" in data:
             order.status = data["status"]
         if "loading_time" in data:
