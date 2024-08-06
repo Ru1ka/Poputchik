@@ -19,6 +19,8 @@ class Order(SqlAlchemyBase):
     readable_weight = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     amount = sqlalchemy.Column(sqlalchemy.Integer, nullable=False)
     temperature_condition = sqlalchemy.Column(sqlalchemy.Boolean, nullable=False)
+    package_type = sqlalchemy.Column(sqlalchemy.String, nullable=False)
+    package_count = sqlalchemy.Column(sqlalchemy.Integer, nullable=False)
     VAT = sqlalchemy.Column(sqlalchemy.Boolean, nullable=False)  # НДС
     status = sqlalchemy.Column(sqlalchemy.String, nullable=False, default="Created")  # Created -> Transit -> Delivered
 

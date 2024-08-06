@@ -36,6 +36,8 @@ class Order(BaseModel):
     weight: int
     readable_weight: str = None
     amount: int
+    package_type: str
+    package_count: int
     temperature_condition: bool
     VAT: bool
     status: str

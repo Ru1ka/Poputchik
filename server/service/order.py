@@ -137,6 +137,8 @@ class OrderService:
             readable_weight=data["readable_weight"],
             amount=data["amount"],
             temperature_condition=data["temperature_condition"],
+            package_type=data["package_type"],
+            package_count=data["package_count"],
             customer_id=user.id,
             VAT=data["VAT"],
         )
@@ -230,6 +232,10 @@ class OrderService:
             order.status = data["status"]
         if "loading_time" in data:
             order.loading_time = data["loading_time"]
+        if "package_type" in data:
+            order.package_type = data["package_type"]
+        if "package_count" in data:
+            order.package_count = data["package_count"]
         if "loading_points" in data:
             list(map(
                 lambda x: self.session.delete(x), 
