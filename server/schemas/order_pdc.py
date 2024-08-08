@@ -36,6 +36,8 @@ class CreateOrder(BaseModel):
     readable_weight: str = Field(None, example="10kg")
     amount: float = Field(..., gt=0, example=10)
     temperature_condition: bool
+    package_type: str
+    package_count: int
     VAT: bool
 
 
@@ -59,4 +61,6 @@ class UpdateOrder(BaseModel):
     status: str = None
     loading_points: list[Point] = None
     unloading_points: list[Point] = None
+    package_type: str = None
+    package_count: int = None
     VAT: bool
