@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends
 
 import schemas.order_pdc as order_pdc
+import schemas.pdc as pdc
 from api.dependencies import verify_jwt
-from service.admin import AdminService
 from service.order import OrderService
 from schemas.pdc import ErrorResponse
 from database.users import User
@@ -102,3 +102,17 @@ async def update_order(data: order_pdc.UpdateOrder, user: User = Depends(verify_
     Получение профиля
     """
     return service.update_order_by_user(user, data)
+
+
+@router.delete(
+    "",
+    response_model=pdc.OkReturn,
+    responses={
+        200: {"model": pdc.OkReturn},
+        400: {"description": "Не существующий заказ.", "model": ErrorResponse},
+        401: {"description": "JWT expired or Wrong JWT.", "model": ErrorResponse},
+        404: {"description": "Заказ не найден.", "model": ErrorResponse},
+    },
+)
+async def delete_order(data: order_pdc.deleteOrder, user: User = Depends(verify_jwt), service: OrderService = Depends()):
+    return service.delete_order(user, data)

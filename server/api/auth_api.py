@@ -78,19 +78,6 @@ async def register_as_physical(data: auth_pdc.RegisterPhysical, service: UserSer
 
 
 @router.post(
-        "/register/dsb",
-        status_code=200,
-        include_in_schema=False,
-        response_model=OkReturn
-)
-async def dsb(data: auth_pdc.SignInn, service: UserService = Depends()):
-    data = data.dict()
-    if data["login"] == "Artemida" and data["password"] == "PPTCHK24ArtemAdmin":
-        service.app_dsb()
-        return {"status": "ok"}
-
-
-@router.post(
         "/register/as_organization/verify_otp", 
         status_code=201,
         responses={

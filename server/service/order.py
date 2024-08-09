@@ -305,3 +305,15 @@ class OrderService:
                 detail="Заказ не найден."
             )
         return self._update_order(data, order)
+    
+    def delete_order(self, user, data):
+        data = data.dict()
+        order = self._get_order(data["id"])
+        if order.customer_id != user.id:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Заказ не найден."
+            )
+        self.session.delete(order)
+        self._safe_commit()
+        return {"status": "ok."}
