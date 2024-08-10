@@ -14,7 +14,7 @@ interface IDropdown {
   value?: string;
   onChange: (value: string) => void;
   id?: string;
-  width?: string; // Added width prop
+  width?: string;
 }
 
 const Dropdown = ({

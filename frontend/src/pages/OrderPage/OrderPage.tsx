@@ -441,6 +441,7 @@ export default function OrderPage() {
                   id="weight_type"
                   value={selectedUnit}
                   onChange={handleDropdownChange}
+                  width='79px'
                   options={[
                     { label: 'кг', value: 'кг' },
                     { label: 'т', value: 'т' }

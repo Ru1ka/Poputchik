@@ -154,6 +154,7 @@ const OrderCard = (props: { order: Order }) => {
                 value={adminStatus}
                 onChange={(value) => { setAdminStatus(value); }}
                 options={generateOptions(Object.values(OrderStatus))}
+                width='160px'
               />
             </div>
             <Button buttonTheme={ButtonThemes.RED_FILLED} onClick={() => fetchPostAdminOrder(props.order, adminPrice, adminStatus)}>
