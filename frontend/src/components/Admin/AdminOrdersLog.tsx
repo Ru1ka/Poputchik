@@ -1,7 +1,7 @@
 import styles from "../Orders/OrdersLog.module.css";
-import container_styles from '../../UI/containers.module.css'
-import ordersStory from '../../assets/icons/Time.svg'
-import cn from "classnames"
+import container_styles from '../../UI/containers.module.css';
+import ordersStory from '../../assets/icons/Time.svg';
+import cn from "classnames";
 import Order from "../Orders/OrderModel";
 import OrderCard from "../Orders/OrderCard";
 import { UserWithOrders } from "../Orders/OrderModel";
@@ -11,7 +11,7 @@ const AdminOrdersLog = (props: { orderList: UserWithOrders[] }) => {
     return (
         <div className={styles.centeredFrame}>
             <div className={cn(container_styles.flex_row, container_styles.gap_10)}>
-                <img className={styles.basicIcon} src={ordersStory}></img>
+                <img className={styles.basicIcon} src={ordersStory} alt="Orders story" />
                 <h2>История заявок всех пользователей</h2>
             </div>
             <div className={styles.orderListContainer}>
@@ -24,7 +24,7 @@ const AdminOrdersLog = (props: { orderList: UserWithOrders[] }) => {
                             </h3>
                             {
                                 user.orders.map((order: Order) => (
-                                    <OrderCard order={order} key={'order=' + order.readable_id} />
+                                    <OrderCard order={order} key={'order=' + order.readable_id}/>
                                 ))
                             }
                         </div>

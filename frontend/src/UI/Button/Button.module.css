@@ -18,6 +18,10 @@
     width: 300px !important; 
 }
 
+.button_widht_auto {
+    width: fit-content !important;
+}
+
 .red {
     background: none;
     color: var(--active-red-color);

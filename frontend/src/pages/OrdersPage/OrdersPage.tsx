@@ -11,40 +11,39 @@ import { ModalContext } from "../../components/Modal/ModalContext";
 
 const OrdersPage = () => {
     const { isOpen, openModal } = useContext(ModalContext);
-
     const [ordersList, setOrdersList] = useState<Order[]>([]);
     const [usersWithOrders, setUsersWithOrders] = useState<UserWithOrders[]>([]);
     const location = useLocation();
 
     useEffect(() => {
-        if (localStorage.getItem('admin') == undefined) {
-            if (localStorage.getItem('token') == undefined) {
+        if (!localStorage.getItem('admin')) {
+            if (!localStorage.getItem('token')) {
                 openModal();
             } else {
                 fetchGetUserOrders()
                     .then((data: OrderResponse) => {
-                        console.log(data);
                         setOrdersList(data.orders);
                     })
+                    .catch(error => console.error('Error fetching orders:', error));
             }
         } else {
             fetchGetAllUsersOrders()
                 .then((data: UsersWithOrders) => {
-                    console.log(data);
                     setUsersWithOrders(data.users);
                 })
+                .catch(error => console.error('Error fetching all users orders:', error));
         }
-    }, [])
+    }, []);
 
     useEffect(() => {
-        if (!isOpen && localStorage.getItem('token') != undefined) {
+        if (!isOpen && localStorage.getItem('token')) {
             fetchGetUserOrders()
                 .then((data: OrderResponse) => {
-                    console.log(data);
                     setOrdersList(data.orders);
                 })
+                .catch(error => console.error('Error fetching orders:', error));
         }
-    }, [isOpen])
+    }, [isOpen]);
 
     useEffect(() => {
         if (location.state) {
@@ -62,12 +61,13 @@ const OrdersPage = () => {
         }
     }, [location.state]);
 
+
     return (
         <div className={styles.page}>
             <Header />
-            {localStorage.getItem('admin') == undefined
-                ? <OrdersLog orderList={ordersList} />
-                : <AdminOrdersLog orderList={usersWithOrders} />
+            {!localStorage.getItem('admin')
+                ? <OrdersLog orderList={ordersList}/>
+                : <AdminOrdersLog orderList={usersWithOrders}/>
             }
         </div>
     );

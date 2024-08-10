@@ -124,11 +124,12 @@
     margin-top: var(--spacing-l);
 }
 
-.add_point_button{
+.add_point_button, .add_package_button{
     display: flex;
     justify-content: center;
     column-gap: var(--spacing-m);
     align-self: flex-start;
+    cursor: pointer;
 }
 
 .page{
@@ -137,6 +138,18 @@
     align-items: center;
     margin-bottom: auto;
     max-width: 100%;
+}
+
+.package_block{
+    margin-left: calc(var(--spacing-m) + 20px);
+    position: relative;
+    display: flex;
+    column-gap: var(--spacing-l);
+    align-items: center;
+}
+
+.package_block > .add_package_button{
+    align-self: center;
 }
 
 @media (max-width: 1380px) {
@@ -155,11 +168,17 @@
     .order_page{
         margin-bottom: var(--spacing-2xl);
     }
-    
-    .place_block > img{
+
+    .package_block{
+        flex-direction: column;
+        row-gap: var(--spacing-l);
+        align-self: flex-end;
+        margin-left: 0;
+    }
+    .place_block > img, .package_block > .add_package_button{
         position: absolute;
         right: -30px;
-        top: 12px;
+        top: 15px;
     }
     .order_cargo_block{
         flex-direction: column;
@@ -173,11 +192,6 @@
 }
 
 @media (max-width: 768px) {
-    .place_block > img{
-        position: absolute;
-        right: -30px;
-        top: 12px;
-    }
     .order_page{
         row-gap: 0;
     }
@@ -197,6 +211,5 @@
 @media (max-width: 430px) {
     .place_block > img{
         right: -25px;
-        top: 12px;
     }
 }

@@ -22,18 +22,23 @@ import { ButtonThemes } from '../../UI/Button/ButtonTypes';
 import Input from '../../UI/Input/Input';
 import { InputThemes } from '../../UI/Input/InputTypes';
 import Dropdown from '../OrderInputs/WeightDropdown';
+import { Tooltip } from 'react-tooltip';
 import fetchPostAdminOrder from '../../fetch_functions/fetchPostAdminOrder';
+
+import header_styles from '../Header/Header.module.css';
 
 const OrderCard = (props: { order: Order }) => {
   const navigate = useNavigate();
 
   const handleEditOrder = () => {
-    if (localStorage.getItem('admin') == undefined) {
+    console.log("Editing order:", props.order.id);
+    if (!localStorage.getItem('admin')) { 
       navigate(ORDER_PAGE, { state: { order: props.order, mode: 'edit' } });
     }
   };
 
   const handleRepeatOrder = () => {
+    console.log("Repeating order:", props.order.id);
     navigate(ORDER_PAGE, { state: { order: props.order, mode: 'repeat' } });
   };
 
@@ -54,9 +59,13 @@ const OrderCard = (props: { order: Order }) => {
 
   const distanceInKm = Math.floor(props.order.distance / 1000);
 
+  const cargoDescription = `${props.order.cargo}${props.order.package_type ? `, ${props.order.package_type}` : ''}${props.order.package_count ? `, ${props.order.package_count} шт.` : ''}`;
+
+  console.log("Rendering OrderCard for order ID:", props.order.id);
+
   return (
     <div className={styles.centeredFrameSmall}>
-      <div className={styles.infoAndPriceContainer} onClick={handleEditOrder}>
+      <div className={styles.infoAndPriceContainer}>
         <div className={cn(container_styles.flex_col, container_styles.gap_20)} style={{ maxWidth: 'none' }}>
           <div className={styles.cardHeaderContainer}>
             <div className={cn(container_styles.flex_row, container_styles.gap_20)}>
@@ -76,7 +85,7 @@ const OrderCard = (props: { order: Order }) => {
             <RedBox
               startImgSrc={cargo}
               endImgSrc={props.order.temperature_condition ? temp : undefined}
-              text={props.order.cargo}
+              text={cargoDescription}
               done={props.order.status === 'Delivered'}
             />
           </div>
@@ -94,13 +103,33 @@ const OrderCard = (props: { order: Order }) => {
           </div>
         </div>
 
-        {localStorage.getItem('admin') == undefined ? (
+        {!localStorage.getItem('admin') ? (
           <div className={styles.priceAndRepeatContainer}>
+            <div className={styles.button_edit} data-tooltip-id="order-options-tooltip">
+              <div className={styles.button_circle}></div>
+              <div className={styles.button_circle}></div>
+              <div className={styles.button_circle}></div>
+            </div>
+            <Tooltip
+              id="order-options-tooltip"
+              place="bottom"
+              className={cn(header_styles.tooltip, header_styles.littleTooltip, header_styles.onlyBigScreen)}
+              clickable={true}
+              noArrow={true}
+              offset={28}
+              opacity={1}
+              delayHide={200}
+              disableStyleInjection={true}
+              openOnClick
+            >
+              <Button buttonTheme={ButtonThemes.RED} className={cn(styles.littleRow, styles.redText)} onClick={handleEditOrder}>
+                Редактировать
+              </Button>
+            </Tooltip>
             <div style={{ marginBlock: 'auto' }}>
               <h2 className={styles.price}>{`${formatPrice(props.order.cost.toString())} ₽`}</h2>
               <div className="hint">{vatValue ? 'с НДС' : 'без НДС'}</div>
             </div>
-
             <div className={styles.redText} onClick={(e) => { e.stopPropagation(); handleRepeatOrder(); }}>Повторить</div>
           </div>
         ) : (
@@ -115,20 +144,18 @@ const OrderCard = (props: { order: Order }) => {
                 placeholder="Цена"
                 inputMode="numeric"
                 style={{ maxWidth: 160 }}
-                onChange={(e: any) => { setAdminPrice(e.target.value); }}
+                onChange={(e) => { setAdminPrice(e.target.value); }}
               />
             </div>
-
             <div className={cn(container_styles.flex_col, container_styles.gap_5)}>
               <h3 className={styles.price}>{`Статус заказа:`}</h3>
               <Dropdown
                 id="order_status"
                 value={adminStatus}
-                onChange={(value: string) => { setAdminStatus(value); }}
+                onChange={(value) => { setAdminStatus(value); }}
                 options={generateOptions(Object.values(OrderStatus))}
               />
             </div>
-
             <Button buttonTheme={ButtonThemes.RED_FILLED} onClick={() => fetchPostAdminOrder(props.order, adminPrice, adminStatus)}>
               Сохранить
             </Button>

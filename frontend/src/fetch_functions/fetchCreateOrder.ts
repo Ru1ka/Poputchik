@@ -7,7 +7,7 @@ const fetchCreateOrder = async (
   onUnloadingCityValue: string, onUnloadingValue: string, onUnloadingPhoneValue: string,
   temperatureCondition: boolean, distanceValue: number,
   additionalLoadingPoints: { locality: string, address: string, phone: string }[],
-  VAT: boolean, readableWeight: string
+  VAT: boolean, readableWeight: string, packageCount: number, packageType: string
 ): Promise<Order> => {
   try {
     const requestBody = {
@@ -22,6 +22,8 @@ const fetchCreateOrder = async (
       temperature_condition: temperatureCondition,
       VAT: VAT,
       status: 'new',
+      package_count: packageCount,
+      package_type: packageType,
       loading_points: [{
         locality: onLoadingCityValue,
         address: onLoadingValue,

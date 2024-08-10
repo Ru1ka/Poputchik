@@ -40,6 +40,10 @@
     height: 18px;
 }
 
+.clear_icon:hover{
+    cursor: pointer;
+}
+
 .add_order_icon{
     filter: var(--active-red-filter);
 }

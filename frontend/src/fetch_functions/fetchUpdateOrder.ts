@@ -20,7 +20,9 @@ const fetchUpdateOrder = async (
   distanceValue: number,
   additionalLoadingPoints: { locality: string, address: string, phone: string }[],
   VAT: boolean,
-  readableWeight: string
+  readableWeight: string,
+  packageCount: number,
+  packageType: string
 ): Promise<Order> => {
   try {
     const requestBody = {
@@ -45,7 +47,9 @@ const fetchUpdateOrder = async (
       temperature_condition: temperatureCondition,
       status: status,
       VAT: VAT,
-      readable_weight: readableWeight
+      readable_weight: readableWeight,
+      package_count: packageCount,
+      package_type: packageType
     };
 
     const token = localStorage.getItem('token');

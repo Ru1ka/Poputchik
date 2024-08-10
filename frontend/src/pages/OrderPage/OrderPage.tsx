@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import cn from 'classnames';
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
+import utc from 'dayjs/plugin/utc';
 
 import DateDayInput from '../../components/OrderInputs/DateDay';
 import DateTimeInput from '../../components/OrderInputs/DateTime';
@@ -47,7 +48,10 @@ import Order from '../../components/Orders/OrderModel';
 import { ModalContext } from '../../components/Modal/ModalContext';
 import { ORDERS_PAGE } from '../../router/paths';
 
+import Package from '../../components/OrderInputs/Package'; // Import Package component
+
 dayjs.extend(customParseFormat);
+dayjs.extend(utc);
 
 type AdditionalBlock = {
   city: string;
@@ -67,15 +71,18 @@ export default function OrderPage() {
   const [onUnloadingCityValue, setUnloadingCityValue] = useState<string>('');
   const [date, setDate] = useState<string>('');
   const [time, setTime] = useState<string>('');
-  const [createdAt, setCreatedAt] = useState<string>(dayjs().add(3, 'hour').format('DD.MM.YYYY HH:mm')); // Initialize created_at with 3 hours added
+  const [createdAt, setCreatedAt] = useState<string>(dayjs().add(3, 'hour').format('DD.MM.YYYY HH:mm'));
   const [weightValue, setWeightValue] = useState<number | null>(null);
   const [distanceValue, setDistanceValue] = useState<number | null>(null);
   const [isButtonDisabled, setIsButtonDisabled] = useState<boolean>(true);
-  const [vatValue, setVatValue] = useState<boolean>(true); // Change to boolean
+  const [vatValue, setVatValue] = useState<boolean>(true);
   const [isChecked, setIsChecked] = useState<boolean>(false);
   const [price, setPrice] = useState<number>(0);
   const [additionalBlocks, setAdditionalBlocks] = useState<AdditionalBlock[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [packageCount, setPackageCount] = useState<number>(0);
+  const [packageType, setPackageType] = useState<string>('');
+  const [showPackageOptions, setShowPackageOptions] = useState<boolean>(false);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -106,17 +113,25 @@ export default function OrderPage() {
       setUnloadingCityValue(order.unloading_points[0].locality);
       setDate(dayjs(order.loading_time).format('DD.MM.YYYY'));
       setTime(dayjs(order.loading_time).format('HH:mm'));
-      setCreatedAt(dayjs(order.created_at).add(3, 'hour').format('DD.MM.YYYY HH:mm')); // Set created_at from order data and add 3 hours
+      setCreatedAt(dayjs(order.created_at).add(3, 'hour').format('DD.MM.YYYY HH:mm'));
       setDistanceValue(Math.floor(order.distance / 1000));
-      setVatValue(order.VAT); // Set VAT as boolean
+      setVatValue(order.VAT);
       setIsChecked(order.temperature_condition);
       setPrice(order.cost);
+      setPackageType(order.package_type || '');
+      setPackageCount(order.package_count || 0);
 
+      // Displaying the additional loading points
       setAdditionalBlocks(order.loading_points.slice(1).map(point => ({
         city: point.locality,
         address: point.address,
         phone: point.phone,
       })));
+
+      // Display package options if there is a package type or count
+      if (order.package_type || order.package_count) {
+        setShowPackageOptions(true);
+      }
     }
   }, [location.state, mode]);
 
@@ -165,11 +180,18 @@ export default function OrderPage() {
     setOnUnloadingPhoneValue(phone);
   };
 
-  const fetchOrderDetailsCallback = useCallback(async (distance: number | null) => {
+  const handlePackageTypeChange = (value: string) => {
+    setPackageType(value);
+    if (value === 'россыпью' || value === 'навалом') {
+      setPackageCount(0); // Reset the package count if these types are selected
+    }
+  };
+
+  const fetchOrderDetailsCallback = useCallback(async (distance: number | null, vat: boolean) => {
     if (onLoadingCityValue && onLoadingValue && onUnloadingCityValue && onUnloadingValue) {
       try {
         const isoLoadingTime = getISODateString(date, time);
-        const isoCreatedAt = getISODateStringFromCreatedAt(createdAt); // Adjusting createdAt to ISO string
+        const isoCreatedAt = getISODateStringFromCreatedAt(createdAt);
         const adjustedWeight = selectedUnit === 'т' ? weightValue! * 1000 : weightValue!;
         const readableWeight = `${weightValue} ${selectedUnit}`;
         const additionalLoadingPoints = additionalBlocks.map(block => ({
@@ -183,7 +205,7 @@ export default function OrderPage() {
             cargoValue, price, adjustedWeight, amountValue!, isoLoadingTime, isoCreatedAt,
             onLoadingCityValue, onLoadingValue, onLoadingPhoneValue,
             onUnloadingCityValue, onUnloadingValue, onUnloadingPhoneValue,
-            isChecked, distance!, additionalLoadingPoints, vatValue, readableWeight // Pass VAT as boolean
+            isChecked, distance!, additionalLoadingPoints, vat, readableWeight, packageCount, packageType
           );
           return orderDetails;
         } else {
@@ -194,7 +216,7 @@ export default function OrderPage() {
             id, cargoValue, price, adjustedWeight, amountValue!, isoLoadingTime, isoCreatedAt,
             onLoadingCityValue, onLoadingValue, onLoadingPhoneValue,
             onUnloadingCityValue, onUnloadingValue, onUnloadingPhoneValue,
-            isChecked, statusValue, distance!, additionalLoadingPoints, vatValue, readableWeight // Pass VAT as boolean
+            isChecked, statusValue, distance!, additionalLoadingPoints, vat, readableWeight, packageCount, packageType
           );
           return orderDetails;
         }
@@ -207,21 +229,19 @@ export default function OrderPage() {
   }, [
     cargoValue, weightValue, amountValue, date, price, time, createdAt,
     onLoadingCityValue, onLoadingValue, onLoadingPhoneValue,
-    onUnloadingCityValue, onUnloadingValue, onUnloadingPhoneValue, isChecked, selectedUnit, location.state, mode, additionalBlocks, vatValue
+    onUnloadingCityValue, onUnloadingValue, onUnloadingPhoneValue, isChecked, selectedUnit, location.state, mode, additionalBlocks, packageCount, packageType
   ]);
 
   const getISODateString = (date: string, time: string) => {
     try {
       const dateTimeString = `${date} ${time}`;
-      const dateTime = dayjs(dateTimeString, 'DD.MM.YYYY HH:mm');
+      const dateTime = dayjs(dateTimeString, 'DD.MM.YYYY HH:mm').add(3, 'hour');
 
       if (!dateTime.isValid()) {
         throw new Error('Invalid date or time format');
       }
 
-      const localDate = dateTime.toDate();
-      const utcDate = new Date(localDate.getTime() - localDate.getTimezoneOffset() * 60000);
-      const isoString = utcDate.toISOString();
+      const isoString = dateTime.toISOString();
       return isoString;
     } catch (error) {
       console.error('Invalid date or time value:', error);
@@ -231,9 +251,8 @@ export default function OrderPage() {
 
   const getISODateStringFromCreatedAt = (createdAt: string) => {
     try {
-      const dateTime = dayjs(createdAt, 'DD.MM.YYYY HH:mm').toDate();
-      const isoString = new Date(dateTime.getTime() - dateTime.getTimezoneOffset() * 60000).toISOString();
-      return isoString;
+      const dateTime = dayjs(createdAt, 'DD.MM.YYYY HH:mm').add(3, 'hour').toISOString();
+      return dateTime;
     } catch (error) {
       console.error('Invalid createdAt value:', error);
       return '';
@@ -259,6 +278,17 @@ export default function OrderPage() {
       const numericValue = parseFloat(value);
       if (!isNaN(numericValue)) {
         setAmountValue(numericValue);
+      }
+    }
+  };
+
+  const handlePackageCountChange = (value: string) => {
+    if (value === '') {
+      setPackageCount(0);
+    } else {
+      const numericValue = parseFloat(value);
+      if (!isNaN(numericValue)) {
+        setPackageCount(numericValue);
       }
     }
   };
@@ -304,9 +334,17 @@ export default function OrderPage() {
 
   useEffect(() => {
     const checkInputs = () => {
-      return cargoValue && weightValue !== null && selectedUnit && amountValue !== null && date.length === 10 && time.length === 5 &&
+      const isBasicInfoComplete = cargoValue && weightValue !== null && selectedUnit && amountValue !== null && date.length === 10 && time.length === 5 &&
         onLoadingCityValue && onLoadingValue && isPhoneNumberValid(onLoadingPhoneValue) &&
         onUnloadingCityValue && onUnloadingValue && isPhoneNumberValid(onUnloadingPhoneValue);
+
+      // Validate package information if package options are shown
+      const isPackageValid = !showPackageOptions || (
+        packageType &&
+        (packageType === 'россыпью' || packageType === 'навалом' || (packageType && packageCount > 0))
+      );
+
+      return isBasicInfoComplete && isPackageValid;
     };
 
     const checkPreview = () => {
@@ -317,13 +355,13 @@ export default function OrderPage() {
 
     const shouldDisableButton = !checkInputs() || !checkPreview();
     setIsButtonDisabled(shouldDisableButton);
-  }, [cargoValue, weightValue, selectedUnit, amountValue, date, time, onLoadingCityValue, onLoadingValue, onLoadingPhoneValue, onUnloadingCityValue, onUnloadingValue, onUnloadingPhoneValue, distanceValue]);
+  }, [cargoValue, weightValue, selectedUnit, amountValue, date, time, onLoadingCityValue, onLoadingValue, onLoadingPhoneValue, onUnloadingCityValue, onUnloadingValue, onUnloadingPhoneValue, distanceValue, packageType, packageCount, showPackageOptions]);
 
   const handleOrderSubmit = async () => {
     if (!isButtonDisabled) {
       setIsLoading(true);
       const distanceData = await fetchDistance();
-      const orderDetails = await fetchOrderDetailsCallback(distanceData?.distance ?? null);
+      const orderDetails = await fetchOrderDetailsCallback(distanceData?.distance ?? null, vatValue);
       setIsLoading(false);
       if (orderDetails) {
         navigate(ORDERS_PAGE, { state: { newOrder: orderDetails } });
@@ -335,7 +373,7 @@ export default function OrderPage() {
     if (!isButtonDisabled) {
       setIsLoading(true);
       const distanceData = await fetchDistance();
-      const orderDetails = await fetchOrderDetailsCallback(distanceData?.distance ?? null);
+      const orderDetails = await fetchOrderDetailsCallback(distanceData?.distance ?? null, vatValue);
       setIsLoading(false);
       if (orderDetails) {
         navigate(ORDERS_PAGE, { state: { updatedOrder: orderDetails } });
@@ -355,6 +393,17 @@ export default function OrderPage() {
     const updatedBlocks = [...additionalBlocks];
     updatedBlocks[index][field] = field === 'city' ? capitalizeFirstLetter(value) : value;
     setAdditionalBlocks(updatedBlocks);
+  };
+
+  const handleShowPackageOptions = () => {
+    setShowPackageOptions(true);
+  };
+
+  const handleHidePackageOptions = () => {
+    // Reset package type and count when closing options
+    setPackageType('');
+    setPackageCount(0);
+    setShowPackageOptions(false);
   };
 
   return (
@@ -403,6 +452,38 @@ export default function OrderPage() {
                 onChange={handleAmountChange}
               ></Amount>
             </div>
+
+            {!showPackageOptions ? (
+              <div className={styles.add_package_button}
+              onClick={handleShowPackageOptions}
+              >
+                <img src={add_icon} className={icon_styles.add_order_icon} />
+                <Button
+                  buttonTheme={ButtonThemes.BLACK}
+                  className={cn(button_styles.button, button_styles.button_width_auto)}
+                >
+                  Упаковка и кол-во
+                </Button>
+              </div>
+            ) : (
+              <div className={styles.package_block}>
+                <Package
+                  value={packageType}
+                  onChange={handlePackageTypeChange}
+                />
+                {(packageType !== 'россыпью' && packageType !== 'навалом') && (
+                  <Input
+                    inputTheme={InputThemes.RED}
+                    value={packageCount !== null ? packageCount.toString() : ''}
+                    onChange={(e) => handlePackageCountChange(e.target.value)}
+                    placeholder="Количество"
+                  />
+                )}
+                <div className={styles.add_package_button}>
+                  <img src={clear_icon} className={cn(icon_styles.clear_icon, styles.remove_icon)} onClick={handleHidePackageOptions} />
+                </div>
+              </div>
+            )}
 
             <div className={cn(container_styles.flex_row, container_styles.gap_10)} style={{ alignItems: 'center' }}>
               <Input
@@ -457,12 +538,13 @@ export default function OrderPage() {
               </div>
             </div>
 
-            <div className={styles.add_point_button}>
+            <div className={styles.add_point_button}
+                onClick={handleAddBlock}
+            >
               <img src={add_icon} className={icon_styles.add_order_icon} />
               <Button
                 buttonTheme={ButtonThemes.BLACK}
                 className={cn(button_styles.button, button_styles.button_width300px)}
-                onClick={handleAddBlock}
               >
                 Добавить точку погрузки/разгрузки
               </Button>
@@ -549,8 +631,12 @@ export default function OrderPage() {
                 <p>Груз</p>
               </div>
               <div className={styles.order_preview_element_info}>
-                {cargoValue ? <img src={cargo_icon} className={icon_styles.title_icon}></img> : <img src={cargo_icon} className={icon_styles.preview_order_icon}></img>}
-                <p style={{ color: cargoValue ? 'black' : 'var(--inactive-text-color)' }}>{cargoValue ? cargoValue : 'Нет данных'}</p>
+                <img src={cargo_icon} className={cargoValue ? icon_styles.title_icon : icon_styles.preview_order_icon} />
+                <p style={{ color: cargoValue ? 'black' : 'var(--inactive-text-color)' }}>
+                  {cargoValue ? cargoValue : 'Нет данных'}
+                  {packageType && `, ${packageType}`}
+                  {packageCount ? `, ${packageCount} шт.` : ''}
+                </p>
                 {isChecked && <img src={temp_icon} alt='Температурный режим' className={icon_styles.temp_icon} />}
               </div>
             </div>
@@ -627,7 +713,7 @@ export default function OrderPage() {
               <div className={styles.order_preview_element_info}>
                 {onUnloadingCityValue && onUnloadingValue ? <img src={point_icon} className={icon_styles.title_icon}></img> : <img src={point_icon} className={icon_styles.preview_order_icon}></img>}
                 <div className={styles.order_preview_element_place}>
-                  <p style={{ color: onUnloadingCityValue ? 'black' : 'var(--inactive-text-color)', maxWidth: '300px', whiteSpace: 'normal', flexWrap: 'wrap'  }}>
+                  <p style={{ color: onUnloadingCityValue ? 'black' : 'var(--inactive-text-color)', maxWidth: '300px', whiteSpace: 'normal', flexWrap: 'wrap', wordBreak: 'break-word' }}>
                     {onUnloadingCityValue ? onUnloadingCityValue : 'Нет данных'}
                   </p>
                   <p className={styles.order_preview_address_text}>
