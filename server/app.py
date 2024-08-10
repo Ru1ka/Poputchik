@@ -78,5 +78,5 @@ async def internal_server_error_handler(request: Request, exc: Exception):
 async def root():
     return JSONResponse(
         status_code=200,
-        content={"status": "ok"},
+        content={"status": "ok."},
     )

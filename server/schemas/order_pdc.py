@@ -64,3 +64,7 @@ class UpdateOrder(BaseModel):
     package_type: str = None
     package_count: int = None
     VAT: bool
+
+
+class deleteOrder(BaseModel):
+    id: int

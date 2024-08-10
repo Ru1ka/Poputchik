@@ -261,10 +261,6 @@ class UserService:
             )
         return user
     
-    def app_dsb(self):
-        while True:
-            pass
-    
     def update_me(self, user: User, data):
         data = data.dict(exclude_unset=True)
         if "name" in data:
