@@ -7,8 +7,6 @@ services:
       - app-network
     ports:
       - "${FRONTEND_PORT}:${FRONTEND_PORT}"
-    env_file:
-      - .env
 
   server:
     build:
@@ -19,22 +17,30 @@ services:
     networks:
       - app-network
     env_file:
-      - .env
+      - ./server/.env
+    environment:
+      ENVIRONMENT: ${ENVIRONMENT}
+      SERVER_PORT: ${SERVER_PORT}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     volumes:
       - ./server:/app
     depends_on:
       - db
 
-  # telegram_bot:
-  #   build:
-  #     context: ./telegram
-  #   container_name: telegram_bot
-  #   networks:
-  #     - app-network
-  #   env_file:
-  #     - .env
-  #   volumes:
-  #     - ./telegram:/app
+  telegram_bot:
+    build:
+      context: ./telegram
+    container_name: telegram_bot
+    networks:
+      - app-network
+    env_file:
+      - ./telegram/.env
+    environment:
+      ENVIRONMENT: ${ENVIRONMENT}
+    volumes:
+      - ./telegram:/app
 
   nginx:
     image: nginx:latest
@@ -56,8 +62,7 @@ services:
       - DOMAIN=${DOMAIN}
       - ENVIRONMENT=${ENVIRONMENT}
       - SERVER_PORT=${SERVER_PORT}
-    env_file:
-      - .env
+      - FRONTEND_PORT=${FRONTEND_PORT}
 
   db:
     image: postgres:13

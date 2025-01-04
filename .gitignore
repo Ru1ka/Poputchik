@@ -11,8 +11,8 @@ pgadmin.crt
 pgadmin.key
 node_modules
 package-lock.json
-.log
-/telegram
+*.log
+
 # DEFAUL PYTHON .gitignore:
 # Byte-compiled / optimized / DLL files
 __pycache__/
