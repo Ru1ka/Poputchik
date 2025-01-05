@@ -1,5 +1,4 @@
 from fastapi.openapi.utils import get_openapi
-from fastapi.openapi.docs import get_swagger_ui_html
 
 def custom_openapi(app):
     if app.openapi_schema:

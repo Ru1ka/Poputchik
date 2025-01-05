@@ -1,14 +1,8 @@
 from urllib.request import Request
-
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi import FastAPI, APIRouter
-from fastapi.encoders import jsonable_encoder
+from fastapi import FastAPI
 from fastapi.openapi.docs import get_swagger_ui_html
-from fastapi.exceptions import RequestValidationError
 from starlette.responses import JSONResponse
-
-
-import errors
 from custom_openapi import custom_openapi
 from api import router
 from database import db_session
@@ -20,13 +14,9 @@ app = FastAPI(
     title="API",
     description="Попутчик",
     debug=settings().DEBUG,
-    # root_path="/api/",
-    # docs_url="/docs",
     openapi_url="/openapi/openapi.json"
 )
-# app.openapi_version = "3.0.3"
 app.include_router(router)
-
 
 # CORS
 origins = [
