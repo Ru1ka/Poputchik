@@ -12,6 +12,9 @@ pgadmin.key
 node_modules
 package-lock.json
 *.log
+.env*
+postgres_data_*
+
 
 # DEFAUL PYTHON .gitignore:
 # Byte-compiled / optimized / DLL files

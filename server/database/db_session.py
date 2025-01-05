@@ -18,7 +18,10 @@ def global_init():
 
     if __factory:
         return
-    db_connection = f"postgresql://{settings().POSTGRES_USER}:{settings().POSTGRES_PASSWORD}@postgres:5432/{settings().POSTGRES_DB}"
+    container_name = "postgres"
+    if settings().ENVIRONMENT == "test":
+        container_name = "test_postgres"
+    db_connection = f"postgresql://{settings().POSTGRES_USER}:{settings().POSTGRES_PASSWORD}@{settings().ENVIRONMENT}_postgres:5432/{settings().POSTGRES_DB}"
     logging.info(f"Connecting to Postgres at {db_connection}")
     while True:
         try:

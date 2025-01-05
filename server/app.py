@@ -9,40 +9,45 @@ from database import db_session
 from settings import settings
 
 
-db_session.global_init()
-app = FastAPI(
-    title="API",
-    description="Попутчик",
-    debug=settings().DEBUG,
-    openapi_url="/openapi/openapi.json"
-)
-app.include_router(router)
+def setup_app():
+    db_session.global_init()
+    app = FastAPI(
+        title="API",
+        description="Попутчик",
+        debug=settings().DEBUG,
+        openapi_url="/openapi/openapi.json"
+    )
+    app.include_router(router)
 
-# CORS
-origins = [
-    "http://localhost.tiangolo.com",
-    "http://putchik.ru",
-    "http://backend.putchik.ru",
-    "http://localhost",
-    "http://127.0.0.1:5173",
-    "http://localhost:5173",
-    "http://localhost:8080",
-    "https://localhost.tiangolo.com",
-    "https://putchik.ru",
-    "https://backend.putchik.ru",
-]
+    # CORS
+    origins = [
+        "http://localhost.tiangolo.com",
+        "http://putchik.ru",
+        "http://backend.putchik.ru",
+        "http://localhost",
+        "http://127.0.0.1:5173",
+        "http://localhost:5173",
+        "http://localhost:8080",
+        "https://localhost.tiangolo.com",
+        "https://putchik.ru",
+        "https://backend.putchik.ru",
+    ]
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=origins,
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
 
-# Custom auto autorization using JWT instead of login+password in /docs
-app.openapi_schema = None
-app.openapi = lambda: custom_openapi(app)
+    # Custom auto autorization using JWT instead of login+password in /docs
+    app.openapi_schema = None
+    app.openapi = lambda: custom_openapi(app)
+    return app
+
+
+app = setup_app()
 
 
 @app.get("/openapi.json", include_in_schema=False)
